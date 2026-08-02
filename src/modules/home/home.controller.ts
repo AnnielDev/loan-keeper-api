@@ -1,10 +1,12 @@
 import { Controller, Get } from '@nestjs/common';
-// import { Request, Response } from 'express';
+import { HomeService } from './home.service';
 
-@Controller({})
+@Controller()
 export class HomeController {
-  @Get('/dashboard')
+  constructor(private readonly homeService: HomeService) {}
+
+  @Get('dashboard')
   getDashboard() {
-    return 'Dashboard data';
+    return this.homeService.getDashboard();
   }
 }

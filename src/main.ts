@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { setServers } from 'dns';
+import { I18nValidationExceptionFilter, I18nValidationPipe } from 'nestjs-i18n';
 import { AppModule } from './app.module';
+import { sanitizeMongoOperators } from './utils/security/sanitize-mongo.middleware';
 
 // Some networks hand out a link-local IPv6 DNS server (fe80::1), which
 // Node's resolver fails to query for SRV records used by mongodb+srv:// URIs.
@@ -9,6 +11,11 @@ setServers(['8.8.8.8', '1.1.1.1']);
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.use(sanitizeMongoOperators);
+  app.useGlobalPipes(new I18nValidationPipe({ whitelist: true }));
+  app.useGlobalFilters(
+    new I18nValidationExceptionFilter({ detailedErrors: false }),
+  );
   await app.listen(process.env.PORT ?? 3000);
 }
 void bootstrap();
