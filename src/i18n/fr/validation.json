@@ -1,0 +1,13 @@
+{
+  "IS_EMAIL": "{property} doit être une adresse e-mail valide",
+  "IS_STRING": "{property} doit être du texte",
+  "MIN_LENGTH": "{property} doit contenir au moins {constraints.0} caractères",
+  "IS_MONGO_ID": "{property} doit être un identifiant valide",
+  "IS_ENUM": "{property} a une valeur invalide",
+  "IS_NUMBER": "{property} doit être un nombre",
+  "MIN": "{property} doit être supérieur ou égal à {constraints.0}",
+  "IS_INT": "{property} doit être un entier",
+  "IS_DATE_STRING": "{property} doit être une date valide",
+  "IS_URL": "{property} doit être une URL valide",
+  "IS_NUMBER_STRING": "{property} doit être une valeur numérique"
+}

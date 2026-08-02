@@ -1,0 +1,13 @@
+{
+  "IS_EMAIL": "{property} 必须是有效的电子邮件地址",
+  "IS_STRING": "{property} 必须是文本",
+  "MIN_LENGTH": "{property} 长度必须至少为 {constraints.0} 个字符",
+  "IS_MONGO_ID": "{property} 必须是有效的标识符",
+  "IS_ENUM": "{property} 的值无效",
+  "IS_NUMBER": "{property} 必须是数字",
+  "MIN": "{property} 必须大于或等于 {constraints.0}",
+  "IS_INT": "{property} 必须是整数",
+  "IS_DATE_STRING": "{property} 必须是有效日期",
+  "IS_URL": "{property} 必须是有效的网址",
+  "IS_NUMBER_STRING": "{property} 必须是数字值"
+}

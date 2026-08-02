@@ -8,5 +8,6 @@
   "MIN": "{property} must be greater than or equal to {constraints.0}",
   "IS_INT": "{property} must be an integer",
   "IS_DATE_STRING": "{property} must be a valid date",
-  "IS_URL": "{property} must be a valid URL"
+  "IS_URL": "{property} must be a valid URL",
+  "IS_NUMBER_STRING": "{property} must be a numeric value"
 }

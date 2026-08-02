@@ -1,0 +1,13 @@
+{
+  "IS_EMAIL": "{property} एक मान्य ईमेल पता होना चाहिए",
+  "IS_STRING": "{property} टेक्स्ट होना चाहिए",
+  "MIN_LENGTH": "{property} कम से कम {constraints.0} अक्षरों का होना चाहिए",
+  "IS_MONGO_ID": "{property} एक मान्य पहचानकर्ता होना चाहिए",
+  "IS_ENUM": "{property} का मान अमान्य है",
+  "IS_NUMBER": "{property} एक संख्या होनी चाहिए",
+  "MIN": "{property} {constraints.0} से अधिक या उसके बराबर होना चाहिए",
+  "IS_INT": "{property} एक पूर्णांक होना चाहिए",
+  "IS_DATE_STRING": "{property} एक मान्य तिथि होनी चाहिए",
+  "IS_URL": "{property} एक मान्य URL होना चाहिए",
+  "IS_NUMBER_STRING": "{property} एक संख्यात्मक मान होना चाहिए"
+}

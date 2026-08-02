@@ -1,0 +1,4 @@
+{
+  "INVALID_MONTH": "month must be an integer between 1 and 12",
+  "INVALID_YEAR": "year must be a valid year"
+}

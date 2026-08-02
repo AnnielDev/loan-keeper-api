@@ -1,0 +1,4 @@
+{
+  "INVALID_MONTH": "el mes debe ser un número entero entre 1 y 12",
+  "INVALID_YEAR": "el año debe ser válido"
+}
