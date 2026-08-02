@@ -18,7 +18,7 @@ const CODE_SEQUENCE_PADDING = 4;
 export class LoansService {
   constructor(@InjectModel(Loan.name) private loanModel: Model<LoanDocument>) {}
 
-  async create(dto: CreateLoanDto) {
+  async create(dto: CreateLoanDto, userId: string) {
     const code = await this.generateCode(dto.type);
     const totalInterest = this.calculateTotalInterest(dto);
     const totalAmount = dto.principal + totalInterest;
@@ -36,12 +36,27 @@ export class LoansService {
       totalInterest,
       totalAmount,
       installments,
+      registeredBy: userId,
     });
   }
 
   findAll() {
     return this.loanModel
       .find()
+      .populate('customer', 'fullName avatarUrl')
+      .sort({ createdAt: -1 });
+  }
+
+  findByUser(userId: string) {
+    return this.loanModel
+      .find({ registeredBy: userId })
+      .populate('customer', 'fullName avatarUrl')
+      .sort({ createdAt: -1 });
+  }
+
+  findByCustomer(customerId: string) {
+    return this.loanModel
+      .find({ customer: customerId })
       .populate('customer', 'fullName avatarUrl')
       .sort({ createdAt: -1 });
   }

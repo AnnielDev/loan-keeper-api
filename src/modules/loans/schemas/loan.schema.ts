@@ -83,6 +83,9 @@ export class Loan {
 
   @Prop({ type: [InstallmentSchema], default: [] })
   installments!: Types.DocumentArray<Installment>;
+
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  registeredBy!: Types.ObjectId;
 }
 
 export const LoanSchema = SchemaFactory.createForClass(Loan);
