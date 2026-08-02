@@ -5,6 +5,7 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "packageManager": "pnpm@10.33.0",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -33,6 +34,7 @@
     "joi": "18.2.3",
     "mongoose": "9.8.0",
     "nestjs-i18n": "10.6.1",
+    "nodemailer": "9.0.3",
     "passport": "0.7.0",
     "passport-jwt": "4.0.1",
     "reflect-metadata": "0.2.2",
@@ -47,6 +49,7 @@
     "@types/express": "5.0.0",
     "@types/jest": "30.0.0",
     "@types/node": "24.0.0",
+    "@types/nodemailer": "8.0.1",
     "@types/passport-jwt": "4.0.1",
     "@types/supertest": "7.2.1",
     "eslint": "9.18.0",

@@ -16,6 +16,10 @@ export class RegisterDto {
   @MinLength(8, { message: i18nValidationMessage('validation.MIN_LENGTH') })
   password!: string;
 
+  @IsString({ message: i18nValidationMessage('validation.IS_STRING') })
+  @MinLength(2, { message: i18nValidationMessage('validation.MIN_LENGTH') })
+  name!: string;
+
   @IsOptional()
   @IsEnum(Language, { message: i18nValidationMessage('validation.IS_ENUM') })
   language?: Language;

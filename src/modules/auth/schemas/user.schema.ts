@@ -36,6 +36,9 @@ export enum Currency {
   toJSON: {
     transform: (_doc, ret: Record<string, unknown>) => {
       delete ret.password;
+      delete ret.refreshToken;
+      delete ret.passwordResetToken;
+      delete ret.passwordResetExpires;
       return ret;
     },
   },
@@ -47,11 +50,26 @@ export class User {
   @Prop({ required: true, select: false })
   password!: string;
 
+  @Prop({ required: true, trim: true })
+  name!: string;
+
   @Prop({ type: String, enum: Language, default: Language.EN })
   language!: Language;
 
   @Prop({ type: String, enum: Currency, default: Currency.USD })
   currency!: Currency;
+
+  @Prop({ select: false })
+  refreshToken?: string;
+
+  @Prop({ select: false })
+  passwordResetToken?: string;
+
+  @Prop({ select: false })
+  passwordResetExpires?: Date;
+
+  @Prop()
+  lastLoginAt?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
