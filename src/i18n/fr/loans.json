@@ -1,4 +1,6 @@
 {
   "LOAN_NOT_FOUND": "Prêt introuvable",
-  "INSTALLMENT_NOT_FOUND": "Échéance introuvable"
+  "INSTALLMENT_NOT_FOUND": "Échéance introuvable",
+  "LOAN_CREATED": "Prêt créé avec succès",
+  "INSTALLMENT_PAID": "Échéance payée avec succès"
 }

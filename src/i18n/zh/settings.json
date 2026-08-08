@@ -1,3 +1,5 @@
 {
-  "USER_NOT_FOUND": "未找到用户"
+  "USER_NOT_FOUND": "未找到用户",
+  "LANGUAGE_UPDATED": "语言更新成功",
+  "CURRENCY_UPDATED": "货币更新成功"
 }

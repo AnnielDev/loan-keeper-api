@@ -24,7 +24,7 @@ export class LoansService {
     const totalAmount = dto.principal + totalInterest;
     const installments = this.buildInstallments(dto, totalAmount);
 
-    return this.loanModel.create({
+    const loan = await this.loanModel.create({
       customer: dto.customerId,
       code,
       type: dto.type,
@@ -38,6 +38,10 @@ export class LoansService {
       installments,
       registeredBy: userId,
     });
+    return {
+      message: I18nContext.current()?.t('loans.LOAN_CREATED'),
+      data: loan,
+    };
   }
 
   findAll() {
@@ -85,7 +89,10 @@ export class LoansService {
     installment.paidAmount = dto.amount ?? installment.amount;
 
     await loan.save();
-    return loan;
+    return {
+      message: I18nContext.current()?.t('loans.INSTALLMENT_PAID'),
+      data: loan,
+    };
   }
 
   private calculateTotalInterest(dto: CreateLoanDto): number {

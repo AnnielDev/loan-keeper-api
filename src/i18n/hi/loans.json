@@ -1,4 +1,6 @@
 {
   "LOAN_NOT_FOUND": "ऋण नहीं मिला",
-  "INSTALLMENT_NOT_FOUND": "किस्त नहीं मिली"
+  "INSTALLMENT_NOT_FOUND": "किस्त नहीं मिली",
+  "LOAN_CREATED": "ऋण सफलतापूर्वक बनाया गया",
+  "INSTALLMENT_PAID": "किस्त का भुगतान सफलतापूर्वक किया गया"
 }

@@ -71,7 +71,10 @@ export class AuthService {
     await user.save();
 
     const tokens = await this.issueTokens(user.id, user.email);
-    return { user, ...tokens };
+    return {
+      message: I18nContext.current()?.t('auth.LOGIN_SUCCESS'),
+      data: { user, ...tokens },
+    };
   }
 
   async refresh(dto: RefreshTokenDto) {
@@ -102,13 +105,18 @@ export class AuthService {
       );
     }
 
-    return this.issueTokens(user.id, user.email);
+    const tokens = await this.issueTokens(user.id, user.email);
+    return {
+      message: I18nContext.current()?.t('auth.TOKEN_REFRESHED'),
+      data: tokens,
+    };
   }
 
   async logout(userId: string) {
     await this.userModel.findByIdAndUpdate(userId, {
       $unset: { refreshToken: 1 },
     });
+    return { message: I18nContext.current()?.t('auth.LOGOUT_SUCCESS') };
   }
 
   async forgotPassword(dto: ForgotPasswordDto) {

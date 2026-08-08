@@ -1,3 +1,4 @@
 {
-  "CUSTOMER_NOT_FOUND": "未找到客户"
+  "CUSTOMER_NOT_FOUND": "未找到客户",
+  "CUSTOMER_CREATED": "客户创建成功"
 }

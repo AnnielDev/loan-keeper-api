@@ -1,4 +1,6 @@
 {
   "LOAN_NOT_FOUND": "Loan not found",
-  "INSTALLMENT_NOT_FOUND": "Installment not found"
+  "INSTALLMENT_NOT_FOUND": "Installment not found",
+  "LOAN_CREATED": "Loan created successfully",
+  "INSTALLMENT_PAID": "Installment paid successfully"
 }

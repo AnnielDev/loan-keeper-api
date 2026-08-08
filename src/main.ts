@@ -11,6 +11,9 @@ setServers(['8.8.8.8', '1.1.1.1']);
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  // Auth uses a Bearer token (no cookies), so reflecting the request origin
+  // carries no CSRF risk and lets the Expo client connect from any dev port.
+  app.enableCors({ origin: true });
   app.use(sanitizeMongoOperators);
   app.useGlobalPipes(new I18nValidationPipe({ whitelist: true }));
   app.useGlobalFilters(

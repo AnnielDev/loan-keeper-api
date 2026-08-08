@@ -23,7 +23,10 @@ export class SettingsService {
         I18nContext.current()?.t('settings.USER_NOT_FOUND'),
       );
     }
-    return user;
+    return {
+      message: I18nContext.current()?.t('settings.LANGUAGE_UPDATED'),
+      data: user,
+    };
   }
 
   async updateCurrency(userId: string, dto: UpdateCurrencyDto) {
@@ -37,7 +40,10 @@ export class SettingsService {
         I18nContext.current()?.t('settings.USER_NOT_FOUND'),
       );
     }
-    return user;
+    return {
+      message: I18nContext.current()?.t('settings.CURRENCY_UPDATED'),
+      data: user,
+    };
   }
 
   getCurrencies() {

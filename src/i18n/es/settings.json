@@ -1,3 +1,5 @@
 {
-  "USER_NOT_FOUND": "Usuario no encontrado"
+  "USER_NOT_FOUND": "Usuario no encontrado",
+  "LANGUAGE_UPDATED": "Idioma actualizado correctamente",
+  "CURRENCY_UPDATED": "Moneda actualizada correctamente"
 }

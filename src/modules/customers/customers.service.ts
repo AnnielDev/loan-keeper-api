@@ -11,8 +11,15 @@ export class CustomersService {
     @InjectModel(Customer.name) private customerModel: Model<CustomerDocument>,
   ) {}
 
-  create(dto: CreateCustomerDto, userId: string) {
-    return this.customerModel.create({ ...dto, registeredBy: userId });
+  async create(dto: CreateCustomerDto, userId: string) {
+    const customer = await this.customerModel.create({
+      ...dto,
+      registeredBy: userId,
+    });
+    return {
+      message: I18nContext.current()?.t('customers.CUSTOMER_CREATED'),
+      data: customer,
+    };
   }
 
   findAll() {
