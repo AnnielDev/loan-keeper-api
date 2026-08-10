@@ -9,5 +9,6 @@
   "IS_INT": "{property} must be an integer",
   "IS_DATE_STRING": "{property} must be a valid date",
   "IS_URL": "{property} must be a valid URL",
-  "IS_NUMBER_STRING": "{property} must be a numeric value"
+  "IS_NUMBER_STRING": "{property} must be a numeric value",
+  "EXACT_LENGTH": "{property} must be exactly {constraints.0} characters long"
 }

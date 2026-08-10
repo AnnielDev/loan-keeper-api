@@ -17,10 +17,12 @@ import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { VerifyResetCodeDto } from './dto/verify-reset-code.dto';
 import { User, UserDocument } from './schemas/user.schema';
 
 const SALT_ROUNDS = 10;
-const PASSWORD_RESET_EXPIRES_MS = 60 * 60 * 1000;
+const RESET_CODE_EXPIRES_MS = 10 * 60 * 1000;
+const MAX_RESET_CODE_ATTEMPTS = 5;
 
 @Injectable()
 export class AuthService {
@@ -122,16 +124,17 @@ export class AuthService {
   async forgotPassword(dto: ForgotPasswordDto) {
     const user = await this.userModel.findOne({ email: dto.email });
     if (user) {
-      const rawToken = crypto.randomBytes(32).toString('hex');
-      user.passwordResetToken = this.hashToken(rawToken);
-      user.passwordResetExpires = new Date(
-        Date.now() + PASSWORD_RESET_EXPIRES_MS,
-      );
+      const code = crypto.randomInt(0, 1_000_000).toString().padStart(6, '0');
+      user.passwordResetCode = this.hashToken(code);
+      user.passwordResetExpires = new Date(Date.now() + RESET_CODE_EXPIRES_MS);
+      user.passwordResetAttempts = 0;
+      user.passwordResetVerified = false;
       await user.save();
-      await this.mailService.sendPasswordResetEmail(
+      await this.mailService.sendPasswordResetCodeEmail(
         user.email,
         user.name,
-        rawToken,
+        code,
+        user.language,
       );
     }
 
@@ -140,24 +143,62 @@ export class AuthService {
     };
   }
 
-  async resetPassword(dto: ResetPasswordDto) {
-    const tokenHash = this.hashToken(dto.token);
+  async verifyResetCode(dto: VerifyResetCodeDto) {
     const user = await this.userModel
-      .findOne({
-        passwordResetToken: tokenHash,
-        passwordResetExpires: { $gt: new Date() },
-      })
-      .select('+passwordResetToken +passwordResetExpires');
+      .findOne({ email: dto.email })
+      .select(
+        '+passwordResetCode +passwordResetExpires +passwordResetAttempts',
+      );
+
+    if (
+      !user ||
+      !user.passwordResetCode ||
+      !user.passwordResetExpires ||
+      user.passwordResetExpires < new Date()
+    ) {
+      throw new BadRequestException(
+        I18nContext.current()?.t('auth.INVALID_OR_EXPIRED_CODE'),
+      );
+    }
+
+    if ((user.passwordResetAttempts ?? 0) >= MAX_RESET_CODE_ATTEMPTS) {
+      throw new BadRequestException(
+        I18nContext.current()?.t('auth.TOO_MANY_ATTEMPTS'),
+      );
+    }
+
+    if (this.hashToken(dto.code) !== user.passwordResetCode) {
+      user.passwordResetAttempts = (user.passwordResetAttempts ?? 0) + 1;
+      await user.save();
+      throw new BadRequestException(
+        I18nContext.current()?.t('auth.INVALID_CODE'),
+      );
+    }
+
+    user.passwordResetVerified = true;
+    await user.save();
+
+    return { message: I18nContext.current()?.t('auth.CODE_VERIFIED') };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const user = await this.userModel.findOne({
+      email: dto.email,
+      passwordResetVerified: true,
+      passwordResetExpires: { $gt: new Date() },
+    });
 
     if (!user) {
       throw new BadRequestException(
-        I18nContext.current()?.t('auth.INVALID_OR_EXPIRED_TOKEN'),
+        I18nContext.current()?.t('auth.INVALID_OR_EXPIRED_CODE'),
       );
     }
 
     user.password = await bcrypt.hash(dto.password, SALT_ROUNDS);
-    user.passwordResetToken = undefined;
+    user.passwordResetCode = undefined;
     user.passwordResetExpires = undefined;
+    user.passwordResetAttempts = 0;
+    user.passwordResetVerified = false;
     user.refreshToken = undefined;
     await user.save();
 

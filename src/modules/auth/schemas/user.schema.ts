@@ -37,8 +37,10 @@ export enum Currency {
     transform: (_doc, ret: Record<string, unknown>) => {
       delete ret.password;
       delete ret.refreshToken;
-      delete ret.passwordResetToken;
+      delete ret.passwordResetCode;
       delete ret.passwordResetExpires;
+      delete ret.passwordResetAttempts;
+      delete ret.passwordResetVerified;
       return ret;
     },
   },
@@ -63,10 +65,16 @@ export class User {
   refreshToken?: string;
 
   @Prop({ select: false })
-  passwordResetToken?: string;
+  passwordResetCode?: string;
 
   @Prop({ select: false })
   passwordResetExpires?: Date;
+
+  @Prop({ select: false, default: 0 })
+  passwordResetAttempts?: number;
+
+  @Prop({ select: false, default: false })
+  passwordResetVerified?: boolean;
 
   @Prop()
   lastLoginAt?: Date;

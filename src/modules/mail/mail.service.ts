@@ -1,21 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
+import { I18nContext } from 'nestjs-i18n';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
   private readonly transporter: nodemailer.Transporter | null;
   private readonly from: string;
-  private readonly frontendUrl: string;
 
   constructor(private readonly configService: ConfigService) {
     const host = this.configService.get<string>('SMTP_HOST');
     this.from =
       this.configService.get<string>('SMTP_FROM') ||
       'Loan Keeper <no-reply@loankeeper.app>';
-    this.frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
 
     this.transporter = host
       ? nodemailer.createTransport({
@@ -30,14 +28,24 @@ export class MailService {
       : null;
   }
 
-  async sendPasswordResetEmail(to: string, name: string, token: string) {
-    const link = `${this.frontendUrl}/reset-password?token=${token}`;
-    const subject = 'Reset your password';
-    const html = `<p>Hi ${name},</p><p>Click the link below to reset your password. This link expires in 1 hour.</p><p><a href="${link}">${link}</a></p><p>If you didn't request this, you can ignore this email.</p>`;
+  async sendPasswordResetCodeEmail(
+    to: string,
+    name: string,
+    code: string,
+    language: string,
+  ) {
+    const t = (key: string) =>
+      I18nContext.current()?.t(`auth.${key}`, {
+        lang: language,
+        args: { name, code },
+      }) ?? key;
+
+    const subject = t('MAIL_RESET_CODE_SUBJECT');
+    const html = `<p>${t('MAIL_RESET_CODE_GREETING')}</p><p>${t('MAIL_RESET_CODE_BODY')}</p><p style="font-size:28px;font-weight:bold;letter-spacing:6px;">${code}</p><p>${t('MAIL_RESET_CODE_EXPIRY')}</p><p>${t('MAIL_RESET_CODE_IGNORE')}</p>`;
 
     if (!this.transporter) {
       this.logger.warn(
-        `SMTP not configured — password reset link for ${to}: ${link}`,
+        `SMTP not configured — password reset code for ${to}: ${code}`,
       );
       return;
     }
