@@ -17,7 +17,7 @@ export class SettingsService {
     const user = await this.userModel.findByIdAndUpdate(
       userId,
       { language: dto.language },
-      { returnDocument: 'after' },
+      { new: true },
     );
     if (!user) {
       throw new NotFoundException(
@@ -34,7 +34,7 @@ export class SettingsService {
     const user = await this.userModel.findByIdAndUpdate(
       userId,
       { currency: dto.currency },
-      { returnDocument: 'after' },
+      { new: true },
     );
     if (!user) {
       throw new NotFoundException(
@@ -51,7 +51,7 @@ export class SettingsService {
     const user = await this.userModel.findByIdAndUpdate(
       userId,
       { country: dto.country, timezone: dto.timezone },
-      { returnDocument: 'after' },
+      { new: true },
     );
     if (!user) {
       throw new NotFoundException(
