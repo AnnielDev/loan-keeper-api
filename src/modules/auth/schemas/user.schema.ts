@@ -61,6 +61,18 @@ export class User {
   @Prop({ type: String, enum: Currency, default: Currency.USD })
   currency!: Currency;
 
+  // ISO 3166-1 alpha-2 country code; auto-detected from signup/login IP,
+  // editable by the user (no enum: values come from an external standard,
+  // not a fixed business catalog like Language/Currency).
+  @Prop()
+  country?: string;
+
+  // IANA time zone name (e.g. "America/Santo_Domingo"); auto-detected from
+  // signup/login IP, editable by the user. Used to compute day boundaries
+  // (due today, overdue) in the user's own region instead of server time.
+  @Prop()
+  timezone?: string;
+
   @Prop({ select: false })
   refreshToken?: string;
 

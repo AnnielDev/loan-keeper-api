@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { HomeService } from './home.service';
 
 @Controller()
@@ -6,7 +7,7 @@ export class HomeController {
   constructor(private readonly homeService: HomeService) {}
 
   @Get('dashboard')
-  getDashboard() {
-    return this.homeService.getDashboard();
+  getDashboard(@CurrentUser() user: { timezone?: string }) {
+    return this.homeService.getDashboard(user.timezone);
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { diffInDaysInTimeZone } from '../../utils/date/timezone';
 import {
   Customer,
   CustomerDocument,
@@ -37,7 +38,7 @@ export class HomeService {
     @InjectModel(Loan.name) private readonly loanModel: Model<LoanDocument>,
   ) {}
 
-  async getDashboard(): Promise<DashboardResponse> {
+  async getDashboard(timezone?: string): Promise<DashboardResponse> {
     const now = new Date();
     const [customersCount, loans] = await Promise.all([
       this.customerModel.countDocuments(),
@@ -82,7 +83,7 @@ export class HomeService {
         totalPending += installment.amount;
 
         const dueDate = new Date(installment.dueDate);
-        const daysUntilDue = this.diffInDays(dueDate, now);
+        const daysUntilDue = diffInDaysInTimeZone(dueDate, now, timezone);
         if (daysUntilDue < 0) {
           hasOverdueInstallment = true;
         }
@@ -185,18 +186,6 @@ export class HomeService {
       .toLocaleDateString('es', { month: 'short' })
       .replace('.', '')
       .toUpperCase();
-  }
-
-  private startOfDay(date: Date): Date {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  }
-
-  private diffInDays(date: Date, reference: Date): number {
-    const MS_PER_DAY = 1000 * 60 * 60 * 24;
-    return Math.round(
-      (this.startOfDay(date).getTime() - this.startOfDay(reference).getTime()) /
-        MS_PER_DAY,
-    );
   }
 
   private statusFromDays(days: number): DueStatus {

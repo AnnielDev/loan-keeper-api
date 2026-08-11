@@ -10,5 +10,7 @@
   "IS_DATE_STRING": "{property} 必须是有效日期",
   "IS_URL": "{property} 必须是有效的网址",
   "IS_NUMBER_STRING": "{property} 必须是数字值",
-  "EXACT_LENGTH": "{property} 长度必须正好为 {constraints.0} 个字符"
+  "EXACT_LENGTH": "{property} 长度必须正好为 {constraints.0} 个字符",
+  "IS_ISO31661_ALPHA2": "{property} 必须是有效的 ISO 3166-1 alpha-2 国家代码",
+  "IS_TIMEZONE": "{property} 必须是有效的 IANA 时区"
 }

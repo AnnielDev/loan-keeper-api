@@ -2,6 +2,7 @@ import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UpdateCurrencyDto } from './dto/update-currency.dto';
 import { UpdateLanguageDto } from './dto/update-language.dto';
+import { UpdateLocationDto } from './dto/update-location.dto';
 import { SettingsService } from './settings.service';
 
 @Controller('settings')
@@ -32,5 +33,13 @@ export class SettingsController {
     @CurrentUser() user: { userId: string },
   ) {
     return this.settingsService.updateCurrency(user.userId, dto);
+  }
+
+  @Patch('location')
+  updateLocation(
+    @Body() dto: UpdateLocationDto,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.settingsService.updateLocation(user.userId, dto);
   }
 }

@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { setServers } from 'dns';
 import { I18nValidationExceptionFilter, I18nValidationPipe } from 'nestjs-i18n';
 import { AppModule } from './app.module';
@@ -10,10 +11,13 @@ import { sanitizeMongoOperators } from './utils/security/sanitize-mongo.middlewa
 setServers(['8.8.8.8', '1.1.1.1']);
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  // Auth uses a Bearer token (no cookies), so reflecting the request origin
-  // carries no CSRF risk and lets the Expo client connect from any dev port.
-  app.enableCors({ origin: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  // Behind a reverse proxy (Render, Railway, etc.) req.ip is otherwise the
+  // proxy's IP; trusting X-Forwarded-For gives the real client IP.
+  app.set('trust proxy', true);
+  // Auth uses a Bearer token (no cookies), so an open origin carries no CSRF
+  // risk and lets clients (Expo dev builds, mobile devices) connect freely.
+  app.enableCors();
   app.use(sanitizeMongoOperators);
   app.useGlobalPipes(new I18nValidationPipe({ whitelist: true }));
   app.useGlobalFilters(
