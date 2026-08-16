@@ -65,10 +65,10 @@ export class SettingsService {
   }
 
   getCurrencies() {
-    return CURRENCIES;
+    return { data: CURRENCIES };
   }
 
   getLanguages() {
-    return LANGUAGES;
+    return { data: LANGUAGES };
   }
 }
