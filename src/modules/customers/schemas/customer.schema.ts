@@ -26,8 +26,20 @@ export class Customer {
   @Prop({ trim: true })
   address?: string;
 
+  @Prop({ trim: true })
+  city?: string;
+
+  @Prop({ trim: true })
+  occupation?: string;
+
+  @Prop()
+  monthlyIncome?: number;
+
   @Prop()
   avatarUrl?: string;
+
+  @Prop({ type: [String], default: [] })
+  documentUrls!: string[];
 
   @Prop({ type: String, enum: RiskLevel, default: RiskLevel.LOW })
   riskLevel!: RiskLevel;

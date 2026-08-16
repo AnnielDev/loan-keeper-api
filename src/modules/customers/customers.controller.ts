@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
+import { ListCustomersQueryDto } from './dto/list-customers-query.dto';
 
 @Controller('customers')
 export class CustomersController {
@@ -16,8 +17,11 @@ export class CustomersController {
   }
 
   @Get()
-  findAll() {
-    return this.customersService.findAll();
+  findAll(
+    @Query() query: ListCustomersQueryDto,
+    @CurrentUser() user: { timezone?: string },
+  ) {
+    return this.customersService.findAll(query, user.timezone);
   }
 
   @Get('user/:userId')

@@ -1,6 +1,7 @@
 {
   "IS_EMAIL": "{property} 必须是有效的电子邮件地址",
   "IS_STRING": "{property} 必须是文本",
+  "IS_ARRAY": "{property} 必须是一个列表",
   "MIN_LENGTH": "{property} 长度必须至少为 {constraints.0} 个字符",
   "IS_MONGO_ID": "{property} 必须是有效的标识符",
   "IS_ENUM": "{property} 的值无效",

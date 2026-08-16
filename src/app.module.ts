@@ -11,6 +11,7 @@ import { HomeModule } from './modules/home/home.module';
 import { LoansModule } from './modules/loans/loans.module';
 import { ScheduleModule } from './modules/schedule/schedule.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { UploadsModule } from './modules/uploads/uploads.module';
 import { envValidationSchema } from './utils/config/env.validation';
 import { DatabaseModule } from './utils/database/database.module';
 import { UserLanguageResolver } from './i18n/resolvers/user-language.resolver';
@@ -42,6 +43,7 @@ import { UserLanguageResolver } from './i18n/resolvers/user-language.resolver';
     SettingsModule,
     ScheduleModule,
     HomeModule,
+    UploadsModule,
   ],
   controllers: [AppController],
   providers: [

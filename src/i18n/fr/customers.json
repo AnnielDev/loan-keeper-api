@@ -1,4 +1,5 @@
 {
   "CUSTOMER_NOT_FOUND": "Client introuvable",
-  "CUSTOMER_CREATED": "Client créé avec succès"
+  "CUSTOMER_CREATED": "Client créé avec succès",
+  "CUSTOMER_DOCUMENT_ID_EXISTS": "Un client avec ce numéro de document existe déjà"
 }

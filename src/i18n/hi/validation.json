@@ -1,6 +1,7 @@
 {
   "IS_EMAIL": "{property} एक मान्य ईमेल पता होना चाहिए",
   "IS_STRING": "{property} टेक्स्ट होना चाहिए",
+  "IS_ARRAY": "{property} एक सूची होनी चाहिए",
   "MIN_LENGTH": "{property} कम से कम {constraints.0} अक्षरों का होना चाहिए",
   "IS_MONGO_ID": "{property} एक मान्य पहचानकर्ता होना चाहिए",
   "IS_ENUM": "{property} का मान अमान्य है",

@@ -1,4 +1,5 @@
 {
   "CUSTOMER_NOT_FOUND": "Customer not found",
-  "CUSTOMER_CREATED": "Customer created successfully"
+  "CUSTOMER_CREATED": "Customer created successfully",
+  "CUSTOMER_DOCUMENT_ID_EXISTS": "A customer with that document ID already exists"
 }

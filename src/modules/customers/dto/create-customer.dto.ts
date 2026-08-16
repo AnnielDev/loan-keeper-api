@@ -1,4 +1,13 @@
-import { IsEmail, IsEnum, IsOptional, IsString, IsUrl } from 'class-validator';
+import {
+  IsArray,
+  IsEmail,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Min,
+} from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 import { RiskLevel } from '../schemas/customer.schema';
 
@@ -22,8 +31,29 @@ export class CreateCustomerDto {
   address?: string;
 
   @IsOptional()
+  @IsString({ message: i18nValidationMessage('validation.IS_STRING') })
+  city?: string;
+
+  @IsOptional()
+  @IsString({ message: i18nValidationMessage('validation.IS_STRING') })
+  occupation?: string;
+
+  @IsOptional()
+  @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
+  @Min(0, { message: i18nValidationMessage('validation.MIN') })
+  monthlyIncome?: number;
+
+  @IsOptional()
   @IsUrl({}, { message: i18nValidationMessage('validation.IS_URL') })
   avatarUrl?: string;
+
+  @IsOptional()
+  @IsArray({ message: i18nValidationMessage('validation.IS_ARRAY') })
+  @IsUrl(
+    {},
+    { each: true, message: i18nValidationMessage('validation.IS_URL') },
+  )
+  documentUrls?: string[];
 
   @IsOptional()
   @IsEnum(RiskLevel, { message: i18nValidationMessage('validation.IS_ENUM') })

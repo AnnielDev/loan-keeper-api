@@ -1,7 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { setServers } from 'dns';
+import { existsSync, mkdirSync } from 'fs';
 import { I18nValidationExceptionFilter, I18nValidationPipe } from 'nestjs-i18n';
+import { join } from 'path';
 import { AppModule } from './app.module';
 import { sanitizeMongoOperators } from './utils/security/sanitize-mongo.middleware';
 
@@ -18,6 +20,12 @@ async function bootstrap() {
   // Auth uses a Bearer token (no cookies), so an open origin carries no CSRF
   // risk and lets clients (Expo dev builds, mobile devices) connect freely.
   app.enableCors();
+
+  const uploadsDir = join(__dirname, '..', 'uploads');
+  if (!existsSync(uploadsDir)) {
+    mkdirSync(uploadsDir, { recursive: true });
+  }
+  app.useStaticAssets(uploadsDir, { prefix: '/uploads' });
   app.use(sanitizeMongoOperators);
   app.useGlobalPipes(new I18nValidationPipe({ whitelist: true }));
   app.useGlobalFilters(
