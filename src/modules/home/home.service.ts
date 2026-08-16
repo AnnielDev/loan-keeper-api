@@ -38,7 +38,10 @@ export class HomeService {
     @InjectModel(Loan.name) private readonly loanModel: Model<LoanDocument>,
   ) {}
 
-  async getDashboard(timezone?: string): Promise<DashboardResponse> {
+  async getDashboard(
+    timezone?: string,
+    balance = 0,
+  ): Promise<DashboardResponse> {
     const now = new Date();
     const [customersCount, loans] = await Promise.all([
       this.customerModel.countDocuments(),
@@ -120,6 +123,7 @@ export class HomeService {
 
     return {
       pendingToday,
+      balance,
       totalLoaned: { amount: totalLoaned, growthPercentage },
       collected: { amount: totalCollected },
       pending: { amount: totalPending },

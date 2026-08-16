@@ -1,12 +1,13 @@
 import {
   IsEmail,
   IsEnum,
+  IsNumber,
   IsOptional,
   IsString,
   MinLength,
 } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
-import { Language } from '../schemas/user.schema';
+import { Currency, Language } from '../schemas/user.schema';
 
 export class RegisterDto {
   @IsEmail({}, { message: i18nValidationMessage('validation.IS_EMAIL') })
@@ -23,4 +24,12 @@ export class RegisterDto {
   @IsOptional()
   @IsEnum(Language, { message: i18nValidationMessage('validation.IS_ENUM') })
   language?: Language;
+
+  @IsOptional()
+  @IsNumber({}, { message: i18nValidationMessage('validation.IS_NUMBER') })
+  balance?: number;
+
+  @IsOptional()
+  @IsEnum(Currency, { message: i18nValidationMessage('validation.IS_ENUM') })
+  currency?: Currency;
 }

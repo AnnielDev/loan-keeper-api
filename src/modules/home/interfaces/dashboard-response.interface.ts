@@ -17,6 +17,7 @@ export interface UpcomingDueDate {
 
 export interface DashboardResponse {
   pendingToday: number;
+  balance: number;
   totalLoaned: {
     amount: number;
     growthPercentage: number;

@@ -61,6 +61,12 @@ export class User {
   @Prop({ type: String, enum: Currency, default: Currency.USD })
   currency!: Currency;
 
+  // Lender's own capital/cash-on-hand; may go negative. Debited when the
+  // user creates a loan (capital lent out) and credited when an
+  // installment is paid (capital collected back) — see LoansService.
+  @Prop({ type: Number, default: 0 })
+  balance!: number;
+
   // ISO 3166-1 alpha-2 country code; auto-detected from signup/login IP,
   // editable by the user (no enum: values come from an external standard,
   // not a fixed business catalog like Language/Currency).

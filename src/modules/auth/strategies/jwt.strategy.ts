@@ -35,6 +35,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       email: user.email,
       language: user.language,
       timezone: user.timezone,
+      currency: user.currency,
+      balance: user.balance,
     };
   }
 }

@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 import { UpdateCurrencyDto } from './dto/update-currency.dto';
 import { UpdateLanguageDto } from './dto/update-language.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
@@ -22,6 +23,7 @@ export class SettingsController {
     return this.settingsService.updateLanguage(user.userId, dto);
   }
 
+  @Public()
   @Get('currencies')
   getCurrencies() {
     return this.settingsService.getCurrencies();

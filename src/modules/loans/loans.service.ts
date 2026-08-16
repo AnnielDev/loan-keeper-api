@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { I18nContext } from 'nestjs-i18n';
+import { User, UserDocument } from '../auth/schemas/user.schema';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { PayInstallmentDto } from './dto/pay-installment.dto';
 import {
@@ -16,7 +17,10 @@ const CODE_SEQUENCE_PADDING = 4;
 
 @Injectable()
 export class LoansService {
-  constructor(@InjectModel(Loan.name) private loanModel: Model<LoanDocument>) {}
+  constructor(
+    @InjectModel(Loan.name) private loanModel: Model<LoanDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+  ) {}
 
   async create(dto: CreateLoanDto, userId: string) {
     const code = await this.generateCode(dto.type);
@@ -38,6 +42,11 @@ export class LoansService {
       installments,
       registeredBy: userId,
     });
+
+    await this.userModel.findByIdAndUpdate(userId, {
+      $inc: { balance: -dto.principal },
+    });
+
     return {
       message: I18nContext.current()?.t('loans.LOAN_CREATED'),
       data: loan,
@@ -89,6 +98,11 @@ export class LoansService {
     installment.paidAmount = dto.amount ?? installment.amount;
 
     await loan.save();
+
+    await this.userModel.findByIdAndUpdate(loan.registeredBy, {
+      $inc: { balance: installment.paidAmount },
+    });
+
     return {
       message: I18nContext.current()?.t('loans.INSTALLMENT_PAID'),
       data: loan,

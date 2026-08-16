@@ -47,6 +47,8 @@ export class AuthService {
       password: hashedPassword,
       name: dto.name,
       language: dto.language,
+      balance: dto.balance ?? 0,
+      currency: dto.currency,
     });
 
     return { message: I18nContext.current()?.t('auth.REGISTER_SUCCESS') };
