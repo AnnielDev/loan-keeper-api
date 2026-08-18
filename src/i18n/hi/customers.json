@@ -1,5 +1,6 @@
 {
   "CUSTOMER_NOT_FOUND": "ग्राहक नहीं मिला",
   "CUSTOMER_CREATED": "ग्राहक सफलतापूर्वक बनाया गया",
+  "CUSTOMER_UPDATED": "ग्राहक सफलतापूर्वक अपडेट किया गया",
   "CUSTOMER_DOCUMENT_ID_EXISTS": "उस दस्तावेज़ आईडी वाला ग्राहक पहले से मौजूद है"
 }

@@ -1,10 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { I18nContext } from 'nestjs-i18n';
+import { diffInDaysInTimeZone } from '../../utils/date/timezone';
 import { User, UserDocument } from '../auth/schemas/user.schema';
 import { CreateLoanDto } from './dto/create-loan.dto';
+import { ListLoansQueryDto } from './dto/list-loans-query.dto';
 import { PayInstallmentDto } from './dto/pay-installment.dto';
+import { LoanStatus, LoanSummary } from './interfaces/loan-summary.interface';
 import {
   InterestType,
   LOAN_TYPE_CODE_PREFIX,
@@ -14,6 +17,31 @@ import {
 } from './schemas/loan.schema';
 
 const CODE_SEQUENCE_PADDING = 4;
+
+interface LeanInstallment {
+  dueDate: Date;
+  amount: number;
+  paid: boolean;
+  paidAmount?: number;
+}
+
+interface LeanCustomer {
+  _id: Types.ObjectId;
+  fullName: string;
+  avatarUrl?: string;
+}
+
+interface LeanLoan {
+  _id: Types.ObjectId;
+  code: string;
+  customer: LeanCustomer;
+  totalAmount: number;
+  installments: LeanInstallment[];
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 @Injectable()
 export class LoansService {
@@ -53,11 +81,34 @@ export class LoansService {
     };
   }
 
-  findAll() {
-    return this.loanModel
+  async findAll(
+    query: ListLoansQueryDto,
+    timezone?: string,
+  ): Promise<LoanSummary[]> {
+    const loans = await this.loanModel
       .find()
       .populate('customer', 'fullName avatarUrl')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean<LeanLoan[]>();
+
+    const now = new Date();
+    let summaries = loans.map((loan) => this.toSummary(loan, now, timezone));
+
+    if (query.search) {
+      const regex = new RegExp(escapeRegExp(query.search), 'i');
+      summaries = summaries.filter(
+        (summary) =>
+          regex.test(summary.code) || regex.test(summary.customerName),
+      );
+    }
+
+    if (query.status && query.status !== 'all') {
+      summaries = summaries.filter(
+        (summary) => summary.status === query.status,
+      );
+    }
+
+    return summaries;
   }
 
   findByUser(userId: string) {
@@ -106,6 +157,56 @@ export class LoansService {
     return {
       message: I18nContext.current()?.t('loans.INSTALLMENT_PAID'),
       data: loan,
+    };
+  }
+
+  private toSummary(loan: LeanLoan, now: Date, timezone?: string): LoanSummary {
+    const paidAmount = loan.installments
+      .filter((installment) => installment.paid)
+      .reduce(
+        (sum, installment) =>
+          sum + (installment.paidAmount ?? installment.amount),
+        0,
+      );
+    const progressPercent =
+      loan.totalAmount > 0
+        ? Math.round((paidAmount / loan.totalAmount) * 100)
+        : 0;
+
+    const nextInstallment = loan.installments
+      .filter((installment) => !installment.paid)
+      .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())[0];
+
+    let status: LoanStatus = 'paid';
+    let nextPaymentDate: string | null = null;
+    let daysOverdue: number | null = null;
+
+    if (nextInstallment) {
+      nextPaymentDate = nextInstallment.dueDate.toISOString();
+      const daysUntilDue = diffInDaysInTimeZone(
+        nextInstallment.dueDate,
+        now,
+        timezone,
+      );
+      if (daysUntilDue < 0) {
+        status = 'overdue';
+        daysOverdue = Math.abs(daysUntilDue);
+      } else {
+        status = 'active';
+      }
+    }
+
+    return {
+      _id: String(loan._id),
+      code: loan.code,
+      customerId: String(loan.customer?._id ?? ''),
+      customerName: loan.customer?.fullName ?? '',
+      customerAvatarUrl: loan.customer?.avatarUrl ?? null,
+      totalAmount: loan.totalAmount,
+      progressPercent,
+      status,
+      nextPaymentDate,
+      daysOverdue,
     };
   }
 

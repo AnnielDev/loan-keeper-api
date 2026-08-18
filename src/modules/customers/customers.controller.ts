@@ -1,8 +1,17 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { ListCustomersQueryDto } from './dto/list-customers-query.dto';
+import { UpdateCustomerDto } from './dto/update-customer.dto';
 
 @Controller('customers')
 export class CustomersController {
@@ -29,8 +38,21 @@ export class CustomersController {
     return this.customersService.findByUser(userId);
   }
 
+  @Get(':id/detail')
+  getDetail(
+    @Param('id') id: string,
+    @CurrentUser() user: { timezone?: string },
+  ) {
+    return this.customersService.getDetail(id, user.timezone);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.customersService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() dto: UpdateCustomerDto) {
+    return this.customersService.update(id, dto);
   }
 }

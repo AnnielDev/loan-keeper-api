@@ -1,5 +1,6 @@
 {
   "CUSTOMER_NOT_FOUND": "未找到客户",
   "CUSTOMER_CREATED": "客户创建成功",
+  "CUSTOMER_UPDATED": "客户更新成功",
   "CUSTOMER_DOCUMENT_ID_EXISTS": "该证件号码对应的客户已存在"
 }

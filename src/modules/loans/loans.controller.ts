@@ -1,6 +1,15 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CreateLoanDto } from './dto/create-loan.dto';
+import { ListLoansQueryDto } from './dto/list-loans-query.dto';
 import { PayInstallmentDto } from './dto/pay-installment.dto';
 import { LoansService } from './loans.service';
 
@@ -14,8 +23,11 @@ export class LoansController {
   }
 
   @Get()
-  findAll() {
-    return this.loansService.findAll();
+  findAll(
+    @Query() query: ListLoansQueryDto,
+    @CurrentUser() user: { timezone?: string },
+  ) {
+    return this.loansService.findAll(query, user.timezone);
   }
 
   @Get('user/:userId')
