@@ -59,6 +59,7 @@ interface LeanLoanDetail {
   type: LoanType;
   principal: number;
   totalAmount: number;
+  startDate: Date;
   installments: LeanInstallment[];
 }
 
@@ -285,6 +286,7 @@ export class CustomersService {
         paidAmount,
         progressPercent,
         status,
+        startDate: loan.startDate.toISOString(),
         nextPaymentDate,
         daysOverdue,
         nextInstallmentId: nextInstallment ? String(nextInstallment._id) : null,

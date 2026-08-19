@@ -11,6 +11,7 @@ export interface CustomerLoanSummary {
   paidAmount: number;
   progressPercent: number;
   status: LoanStatus;
+  startDate: string;
   nextPaymentDate: string | null;
   daysOverdue: number | null;
   nextInstallmentId: string | null;
