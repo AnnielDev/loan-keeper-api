@@ -18,6 +18,8 @@ export enum PaymentFrequency {
   WEEKLY = 'weekly',
   BIWEEKLY = 'biweekly',
   MONTHLY = 'monthly',
+  EVERY_2_MONTHS = 'every_2_months',
+  EVERY_3_MONTHS = 'every_3_months',
 }
 
 export const LOAN_TYPE_CODE_PREFIX: Record<LoanType, string> = {

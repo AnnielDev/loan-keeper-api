@@ -408,6 +408,10 @@ export class LoansService {
       date.setDate(date.getDate() + periods * 7);
     } else if (frequency === PaymentFrequency.BIWEEKLY) {
       date.setDate(date.getDate() + periods * 14);
+    } else if (frequency === PaymentFrequency.EVERY_2_MONTHS) {
+      date.setMonth(date.getMonth() + periods * 2);
+    } else if (frequency === PaymentFrequency.EVERY_3_MONTHS) {
+      date.setMonth(date.getMonth() + periods * 3);
     } else {
       date.setMonth(date.getMonth() + periods);
     }
