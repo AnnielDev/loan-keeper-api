@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -43,6 +44,11 @@ export class LoansController {
   @Get(':id')
   findOne(@Param('id') id: string, @CurrentUser() user: { timezone?: string }) {
     return this.loansService.getDetail(id, user.timezone);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.loansService.remove(id);
   }
 
   @Patch(':loanId/installments/:installmentId/pay')

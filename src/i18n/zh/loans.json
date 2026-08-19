@@ -2,5 +2,6 @@
   "LOAN_NOT_FOUND": "未找到贷款",
   "INSTALLMENT_NOT_FOUND": "未找到分期付款",
   "LOAN_CREATED": "贷款创建成功",
-  "INSTALLMENT_PAID": "分期付款成功"
+  "INSTALLMENT_PAID": "分期付款成功",
+  "LOAN_DELETED": "贷款删除成功"
 }

@@ -2,5 +2,7 @@
   "CUSTOMER_NOT_FOUND": "Client introuvable",
   "CUSTOMER_CREATED": "Client créé avec succès",
   "CUSTOMER_UPDATED": "Client mis à jour avec succès",
-  "CUSTOMER_DOCUMENT_ID_EXISTS": "Un client avec ce numéro de document existe déjà"
+  "CUSTOMER_DOCUMENT_ID_EXISTS": "Un client avec ce numéro de document existe déjà",
+  "CUSTOMER_DELETED": "Client supprimé avec succès",
+  "CUSTOMER_HAS_LOANS": "Ce client a encore des prêts. Supprimez d'abord ses prêts."
 }

@@ -253,6 +253,31 @@ export class LoansService {
     };
   }
 
+  async remove(id: string) {
+    const loan = await this.loanModel.findById(id);
+    if (!loan) {
+      throw new NotFoundException(
+        I18nContext.current()?.t('loans.LOAN_NOT_FOUND'),
+      );
+    }
+
+    const paidAmount = loan.installments
+      .filter((installment) => installment.paid)
+      .reduce(
+        (sum, installment) =>
+          sum + (installment.paidAmount ?? installment.amount),
+        0,
+      );
+
+    await this.loanModel.deleteOne({ _id: id });
+
+    await this.userModel.findByIdAndUpdate(loan.registeredBy, {
+      $inc: { balance: loan.principal - paidAmount },
+    });
+
+    return { message: I18nContext.current()?.t('loans.LOAN_DELETED') };
+  }
+
   async payInstallment(
     loanId: string,
     installmentId: string,

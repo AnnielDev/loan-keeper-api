@@ -2,5 +2,6 @@
   "LOAN_NOT_FOUND": "Préstamo no encontrado",
   "INSTALLMENT_NOT_FOUND": "Cuota no encontrada",
   "LOAN_CREATED": "Préstamo creado correctamente",
-  "INSTALLMENT_PAID": "Cuota pagada correctamente"
+  "INSTALLMENT_PAID": "Cuota pagada correctamente",
+  "LOAN_DELETED": "Préstamo eliminado correctamente"
 }

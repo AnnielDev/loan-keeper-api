@@ -314,6 +314,26 @@ export class CustomersService {
       .sort({ createdAt: -1 });
   }
 
+  async remove(id: string) {
+    const customer = await this.customerModel.findById(id);
+    if (!customer) {
+      throw new NotFoundException(
+        I18nContext.current()?.t('customers.CUSTOMER_NOT_FOUND'),
+      );
+    }
+
+    const loanCount = await this.loanModel.countDocuments({ customer: id });
+    if (loanCount > 0) {
+      throw new ConflictException(
+        I18nContext.current()?.t('customers.CUSTOMER_HAS_LOANS'),
+      );
+    }
+
+    await this.customerModel.deleteOne({ _id: id });
+
+    return { message: I18nContext.current()?.t('customers.CUSTOMER_DELETED') };
+  }
+
   count() {
     return this.customerModel.countDocuments();
   }
