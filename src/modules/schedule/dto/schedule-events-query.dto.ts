@@ -1,4 +1,4 @@
-import { IsNumberString } from 'class-validator';
+import { IsBooleanString, IsNumberString, IsOptional } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class ScheduleEventsQueryDto {
@@ -13,4 +13,10 @@ export class ScheduleEventsQueryDto {
     { message: i18nValidationMessage('validation.IS_NUMBER_STRING') },
   )
   year!: string;
+
+  @IsOptional()
+  @IsBooleanString({
+    message: i18nValidationMessage('validation.IS_BOOLEAN_STRING'),
+  })
+  includePaid?: string;
 }

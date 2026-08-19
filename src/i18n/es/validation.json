@@ -11,6 +11,7 @@
   "IS_DATE_STRING": "{property} debe ser una fecha válida",
   "IS_URL": "{property} debe ser una URL válida",
   "IS_NUMBER_STRING": "{property} debe ser un valor numérico",
+  "IS_BOOLEAN_STRING": "{property} debe ser un valor booleano",
   "EXACT_LENGTH": "{property} debe tener exactamente {constraints.0} caracteres",
   "IS_ISO31661_ALPHA2": "{property} debe ser un código de país ISO 3166-1 alpha-2 válido",
   "IS_TIMEZONE": "{property} debe ser una zona horaria IANA válida"

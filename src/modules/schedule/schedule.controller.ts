@@ -17,6 +17,7 @@ export class ScheduleController {
       Number(query.month),
       Number(query.year),
       user.timezone,
+      query.includePaid === 'true',
     );
   }
 

@@ -25,6 +25,13 @@ export const LOAN_TYPE_CODE_PREFIX: Record<LoanType, string> = {
   [LoanType.MICRO_CREDIT]: 'MC',
 };
 
+export enum PaymentMethod {
+  CASH = 'cash',
+  BANK_TRANSFER = 'bank_transfer',
+  CARD = 'card',
+  OTHER = 'other',
+}
+
 @Schema()
 export class Installment {
   @Prop({ required: true })
@@ -41,6 +48,18 @@ export class Installment {
 
   @Prop()
   paidAmount?: number;
+
+  @Prop({ type: String, enum: PaymentMethod })
+  paymentMethod?: PaymentMethod;
+
+  @Prop()
+  referenceNumber?: string;
+
+  @Prop()
+  receiptUrl?: string;
+
+  @Prop()
+  notes?: string;
 }
 
 export const InstallmentSchema = SchemaFactory.createForClass(Installment);

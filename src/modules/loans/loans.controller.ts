@@ -40,6 +40,11 @@ export class LoansController {
     return this.loansService.findByCustomer(customerId);
   }
 
+  @Get(':id')
+  findOne(@Param('id') id: string, @CurrentUser() user: { timezone?: string }) {
+    return this.loansService.getDetail(id, user.timezone);
+  }
+
   @Patch(':loanId/installments/:installmentId/pay')
   payInstallment(
     @Param('loanId') loanId: string,

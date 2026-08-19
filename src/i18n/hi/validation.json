@@ -11,6 +11,7 @@
   "IS_DATE_STRING": "{property} एक मान्य तिथि होनी चाहिए",
   "IS_URL": "{property} एक मान्य URL होना चाहिए",
   "IS_NUMBER_STRING": "{property} एक संख्यात्मक मान होना चाहिए",
+  "IS_BOOLEAN_STRING": "{property} एक बूलियन मान होना चाहिए",
   "EXACT_LENGTH": "{property} बिल्कुल {constraints.0} अक्षरों का होना चाहिए",
   "IS_ISO31661_ALPHA2": "{property} एक मान्य ISO 3166-1 alpha-2 देश कोड होना चाहिए",
   "IS_TIMEZONE": "{property} एक मान्य IANA समय क्षेत्र होना चाहिए"

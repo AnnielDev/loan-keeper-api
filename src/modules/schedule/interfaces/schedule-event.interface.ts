@@ -1,4 +1,8 @@
-export type ScheduleEventStatus = 'upcoming' | 'today' | 'overdue';
+export type ScheduleEventStatus =
+  | 'upcoming'
+  | 'today'
+  | 'overdue'
+  | 'completed';
 
 export interface ScheduleEvent {
   installmentId: string;

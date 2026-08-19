@@ -7,6 +7,11 @@ import { User, UserDocument } from '../auth/schemas/user.schema';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { ListLoansQueryDto } from './dto/list-loans-query.dto';
 import { PayInstallmentDto } from './dto/pay-installment.dto';
+import {
+  InstallmentStatus,
+  LoanDetail,
+  LoanDetailInstallment,
+} from './interfaces/loan-detail.interface';
 import { LoanStatus, LoanSummary } from './interfaces/loan-summary.interface';
 import {
   InterestType,
@@ -14,6 +19,7 @@ import {
   Loan,
   LoanDocument,
   PaymentFrequency,
+  PaymentMethod,
 } from './schemas/loan.schema';
 
 const CODE_SEQUENCE_PADDING = 4;
@@ -37,6 +43,34 @@ interface LeanLoan {
   customer: LeanCustomer;
   totalAmount: number;
   installments: LeanInstallment[];
+}
+
+interface LeanDetailInstallment {
+  _id: Types.ObjectId;
+  dueDate: Date;
+  amount: number;
+  paid: boolean;
+  paidAt?: Date;
+  paidAmount?: number;
+  paymentMethod?: PaymentMethod;
+  referenceNumber?: string;
+  receiptUrl?: string;
+  notes?: string;
+}
+
+interface LeanLoanDetail {
+  _id: Types.ObjectId;
+  code: string;
+  type: LoanDetail['type'];
+  principal: number;
+  interestRate: number;
+  interestType: InterestType;
+  frequency: PaymentFrequency;
+  startDate: Date;
+  totalInterest: number;
+  totalAmount: number;
+  customer: LeanCustomer | null;
+  installments: LeanDetailInstallment[];
 }
 
 function escapeRegExp(value: string): string {
@@ -125,6 +159,100 @@ export class LoansService {
       .sort({ createdAt: -1 });
   }
 
+  async getDetail(id: string, timezone?: string): Promise<LoanDetail> {
+    const loan = await this.loanModel
+      .findById(id)
+      .populate<{
+        customer: LeanCustomer | null;
+      }>('customer', 'fullName avatarUrl')
+      .lean<LeanLoanDetail>();
+    if (!loan) {
+      throw new NotFoundException(
+        I18nContext.current()?.t('loans.LOAN_NOT_FOUND'),
+      );
+    }
+
+    const now = new Date();
+    const paidAmount = loan.installments
+      .filter((installment) => installment.paid)
+      .reduce(
+        (sum, installment) =>
+          sum + (installment.paidAmount ?? installment.amount),
+        0,
+      );
+    const progressPercent =
+      loan.totalAmount > 0
+        ? Math.round((paidAmount / loan.totalAmount) * 100)
+        : 0;
+
+    const installments: LoanDetailInstallment[] = loan.installments.map(
+      (installment, index) => {
+        const daysUntilDue = diffInDaysInTimeZone(
+          installment.dueDate,
+          now,
+          timezone,
+        );
+        const status: InstallmentStatus = installment.paid
+          ? 'paid'
+          : daysUntilDue < 0
+            ? 'overdue'
+            : 'pending';
+
+        return {
+          _id: String(installment._id),
+          index: index + 1,
+          dueDate: installment.dueDate,
+          amount: installment.amount,
+          paid: installment.paid,
+          paidAt: installment.paidAt ?? null,
+          paidAmount: installment.paidAmount ?? null,
+          paymentMethod: installment.paymentMethod ?? null,
+          referenceNumber: installment.referenceNumber ?? null,
+          receiptUrl: installment.receiptUrl ?? null,
+          notes: installment.notes ?? null,
+          status,
+        };
+      },
+    );
+
+    const nextInstallment = loan.installments
+      .filter((installment) => !installment.paid)
+      .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())[0];
+
+    let status: LoanStatus = 'paid';
+    if (nextInstallment) {
+      const daysUntilDue = diffInDaysInTimeZone(
+        nextInstallment.dueDate,
+        now,
+        timezone,
+      );
+      status = daysUntilDue < 0 ? 'overdue' : 'active';
+    }
+
+    return {
+      _id: String(loan._id),
+      code: loan.code,
+      type: loan.type,
+      principal: loan.principal,
+      interestRate: loan.interestRate,
+      interestType: loan.interestType,
+      frequency: loan.frequency,
+      startDate: loan.startDate,
+      totalInterest: loan.totalInterest,
+      totalAmount: loan.totalAmount,
+      paidAmount,
+      remainingBalance: loan.totalAmount - paidAmount,
+      progressPercent,
+      status,
+      customerId: String(loan.customer?._id ?? ''),
+      customerName: loan.customer?.fullName ?? '',
+      customerAvatarUrl: loan.customer?.avatarUrl ?? null,
+      nextInstallmentId: nextInstallment ? String(nextInstallment._id) : null,
+      nextInstallmentAmount: nextInstallment?.amount ?? null,
+      installments,
+    };
+  }
+
   async payInstallment(
     loanId: string,
     installmentId: string,
@@ -145,8 +273,14 @@ export class LoansService {
     }
 
     installment.paid = true;
-    installment.paidAt = new Date();
+    installment.paidAt = dto.paymentDate
+      ? new Date(dto.paymentDate)
+      : new Date();
     installment.paidAmount = dto.amount ?? installment.amount;
+    installment.paymentMethod = dto.paymentMethod;
+    installment.referenceNumber = dto.referenceNumber;
+    installment.receiptUrl = dto.receiptUrl;
+    installment.notes = dto.notes;
 
     await loan.save();
 

@@ -38,6 +38,7 @@ export class ScheduleService {
     month: number,
     year: number,
     timezone?: string,
+    includePaid = false,
   ): Promise<ScheduleEvent[]> {
     if (!Number.isInteger(month) || month < 1 || month > 12) {
       throw new BadRequestException(
@@ -54,12 +55,13 @@ export class ScheduleService {
     const end = new Date(year, month, 1);
     const now = new Date();
 
+    const installmentMatch: Record<string, unknown> = {
+      dueDate: { $gte: start, $lt: end },
+    };
+    if (!includePaid) installmentMatch.paid = false;
+
     const loans = await this.loanModel
-      .find({
-        installments: {
-          $elemMatch: { paid: false, dueDate: { $gte: start, $lt: end } },
-        },
-      })
+      .find({ installments: { $elemMatch: installmentMatch } })
       .populate<{ customer: PopulatedCustomer | null }>(
         'customer',
         'fullName avatarUrl',
@@ -69,7 +71,7 @@ export class ScheduleService {
     const events: ScheduleEvent[] = [];
     for (const loan of loans) {
       for (const installment of loan.installments) {
-        if (installment.paid) continue;
+        if (!includePaid && installment.paid) continue;
         const dueDate = new Date(installment.dueDate);
         if (dueDate < start || dueDate >= end) continue;
         events.push(this.toEvent(loan, installment, dueDate, now, timezone));
@@ -123,7 +125,9 @@ export class ScheduleService {
       amount: installment.amount,
       dueDate,
       daysUntilDue,
-      status: this.statusFromDays(daysUntilDue),
+      status: installment.paid
+        ? 'completed'
+        : this.statusFromDays(daysUntilDue),
     };
   }
 
