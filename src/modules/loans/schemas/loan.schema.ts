@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 import { Customer } from '../../customers/schemas/customer.schema';
 
 export type LoanDocument = HydratedDocument<Loan>;
@@ -68,7 +68,7 @@ export const InstallmentSchema = SchemaFactory.createForClass(Installment);
 
 @Schema({ timestamps: true })
 export class Loan {
-  @Prop({ type: Types.ObjectId, ref: Customer.name, required: true })
+  @Prop({ type: SchemaTypes.ObjectId, ref: Customer.name, required: true })
   customer!: Types.ObjectId;
 
   @Prop({ required: true, unique: true, trim: true })
@@ -105,7 +105,7 @@ export class Loan {
   @Prop({ type: [InstallmentSchema], default: [] })
   installments!: Types.DocumentArray<Installment>;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'User', required: true })
   registeredBy!: Types.ObjectId;
 }
 

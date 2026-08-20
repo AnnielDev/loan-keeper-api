@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
 export type CustomerDocument = HydratedDocument<Customer>;
 
@@ -44,7 +44,7 @@ export class Customer {
   @Prop({ type: String, enum: RiskLevel, default: RiskLevel.LOW })
   riskLevel!: RiskLevel;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'User', required: true })
   registeredBy!: Types.ObjectId;
 }
 
