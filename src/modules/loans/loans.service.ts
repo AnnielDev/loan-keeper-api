@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { I18nContext } from 'nestjs-i18n';
-import { diffInDaysInTimeZone } from '../../utils/date/timezone';
+import { diffInDaysFromDueDate } from '../../utils/date/timezone';
 import { User, UserDocument } from '../auth/schemas/user.schema';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { ListLoansQueryDto } from './dto/list-loans-query.dto';
@@ -187,7 +187,7 @@ export class LoansService {
 
     const installments: LoanDetailInstallment[] = loan.installments.map(
       (installment, index) => {
-        const daysUntilDue = diffInDaysInTimeZone(
+        const daysUntilDue = diffInDaysFromDueDate(
           installment.dueDate,
           now,
           timezone,
@@ -221,7 +221,7 @@ export class LoansService {
 
     let status: LoanStatus = 'paid';
     if (nextInstallment) {
-      const daysUntilDue = diffInDaysInTimeZone(
+      const daysUntilDue = diffInDaysFromDueDate(
         nextInstallment.dueDate,
         now,
         timezone,
@@ -342,7 +342,7 @@ export class LoansService {
 
     if (nextInstallment) {
       nextPaymentDate = nextInstallment.dueDate.toISOString();
-      const daysUntilDue = diffInDaysInTimeZone(
+      const daysUntilDue = diffInDaysFromDueDate(
         nextInstallment.dueDate,
         now,
         timezone,

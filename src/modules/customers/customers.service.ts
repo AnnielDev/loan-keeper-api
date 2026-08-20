@@ -6,7 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { I18nContext } from 'nestjs-i18n';
-import { diffInDaysInTimeZone } from '../../utils/date/timezone';
+import { diffInDaysFromDueDate } from '../../utils/date/timezone';
 import { Loan, LoanDocument, LoanType } from '../loans/schemas/loan.schema';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { ListCustomersQueryDto } from './dto/list-customers-query.dto';
@@ -168,7 +168,7 @@ export class CustomersService {
       for (const installment of loan.installments) {
         if (installment.paid) continue;
         entry.pendingBalance += installment.amount;
-        const daysUntilDue = diffInDaysInTimeZone(
+        const daysUntilDue = diffInDaysFromDueDate(
           new Date(installment.dueDate),
           now,
           timezone,
@@ -264,7 +264,7 @@ export class CustomersService {
 
       if (nextInstallment) {
         nextPaymentDate = nextInstallment.dueDate.toISOString();
-        const daysUntilDue = diffInDaysInTimeZone(
+        const daysUntilDue = diffInDaysFromDueDate(
           nextInstallment.dueDate,
           now,
           timezone,

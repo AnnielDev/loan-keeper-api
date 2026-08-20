@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { I18nContext } from 'nestjs-i18n';
-import { diffInDaysInTimeZone } from '../../utils/date/timezone';
+import { diffInDaysFromDueDate } from '../../utils/date/timezone';
 import { Installment, Loan, LoanDocument } from '../loans/schemas/loan.schema';
 import {
   ScheduleEvent,
@@ -114,7 +114,7 @@ export class ScheduleService {
     now: Date,
     timezone?: string,
   ): ScheduleEvent {
-    const daysUntilDue = diffInDaysInTimeZone(dueDate, now, timezone);
+    const daysUntilDue = diffInDaysFromDueDate(dueDate, now, timezone);
     return {
       installmentId: String(installment._id),
       loanId: String(loan._id),

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { diffInDaysInTimeZone } from '../../utils/date/timezone';
+import { diffInDaysFromDueDate } from '../../utils/date/timezone';
 import {
   Customer,
   CustomerDocument,
@@ -86,7 +86,7 @@ export class HomeService {
         totalPending += installment.amount;
 
         const dueDate = new Date(installment.dueDate);
-        const daysUntilDue = diffInDaysInTimeZone(dueDate, now, timezone);
+        const daysUntilDue = diffInDaysFromDueDate(dueDate, now, timezone);
         if (daysUntilDue < 0) {
           hasOverdueInstallment = true;
         }

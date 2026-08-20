@@ -56,3 +56,22 @@ export function diffInDaysInTimeZone(
       MS_PER_DAY,
   );
 }
+
+// Installment/loan due dates are calendar-day-only values persisted as UTC
+// midnight (e.g. 2026-09-19T00:00:00.000Z means "the 19th", full stop, with
+// no real time-of-day). Reprojecting that instant through a user's timezone
+// via startOfDayInTimeZone(date, timeZone) shifts it back a calendar day for
+// any timezone behind UTC — exactly the "18th instead of 19th" bug. The due
+// date side must stay pinned to UTC; only `reference` ("now") is a real
+// instant and should be read in the user's timezone.
+export function diffInDaysFromDueDate(
+  dueDate: Date,
+  reference: Date,
+  timeZone: string = DEFAULT_TIME_ZONE,
+): number {
+  return Math.round(
+    (startOfDayInTimeZone(dueDate, DEFAULT_TIME_ZONE).getTime() -
+      startOfDayInTimeZone(reference, timeZone).getTime()) /
+      MS_PER_DAY,
+  );
+}
