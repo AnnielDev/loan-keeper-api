@@ -34,6 +34,14 @@ export class CustomersController {
     return this.customersService.findAll(query, user.timezone);
   }
 
+  @Get('mine')
+  findMine(
+    @Query() query: ListCustomersQueryDto,
+    @CurrentUser() user: { userId: string; timezone?: string },
+  ) {
+    return this.customersService.findMine(query, user.userId, user.timezone);
+  }
+
   @Get('user/:userId')
   findByUser(@Param('userId') userId: string) {
     return this.customersService.findByUser(userId);

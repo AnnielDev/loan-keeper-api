@@ -134,11 +134,32 @@ export class CustomersService {
     query: ListCustomersQueryDto,
     timezone?: string,
   ): Promise<CustomerSummary[]> {
-    const filter: { $or?: Array<{ fullName: RegExp } | { phone: RegExp }> } =
-      {};
+    return this.findSummaries(query, timezone);
+  }
+
+  async findMine(
+    query: ListCustomersQueryDto,
+    userId: string,
+    timezone?: string,
+  ): Promise<CustomerSummary[]> {
+    return this.findSummaries(query, timezone, userId);
+  }
+
+  private async findSummaries(
+    query: ListCustomersQueryDto,
+    timezone?: string,
+    registeredBy?: string,
+  ): Promise<CustomerSummary[]> {
+    const filter: {
+      $or?: Array<{ fullName: RegExp } | { phone: RegExp }>;
+      registeredBy?: string;
+    } = {};
     if (query.search) {
       const regex = new RegExp(escapeRegExp(query.search), 'i');
       filter.$or = [{ fullName: regex }, { phone: regex }];
+    }
+    if (registeredBy) {
+      filter.registeredBy = registeredBy;
     }
 
     const customers = await this.customerModel
