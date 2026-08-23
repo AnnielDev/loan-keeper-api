@@ -35,6 +35,8 @@ interface LeanCustomerDetail {
   documentId: string;
   phone?: string;
   address?: string;
+  occupation?: string;
+  monthlyIncome?: number;
   avatarUrl?: string;
   documentUrls?: string[];
   riskLevel: RiskLevel;
@@ -322,6 +324,8 @@ export class CustomersService {
       documentId: customer.documentId,
       phone: customer.phone ?? null,
       address: customer.address ?? null,
+      occupation: customer.occupation ?? null,
+      monthlyIncome: customer.monthlyIncome ?? null,
       avatarUrl: customer.avatarUrl ?? null,
       documentUrls: customer.documentUrls ?? [],
       riskLevel: customer.riskLevel,
