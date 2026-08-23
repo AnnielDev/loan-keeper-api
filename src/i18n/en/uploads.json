@@ -1,4 +1,5 @@
 {
   "FILE_REQUIRED": "A file is required",
-  "UPLOAD_SUCCESS": "File uploaded successfully"
+  "UPLOAD_SUCCESS": "File uploaded successfully",
+  "FILE_NOT_FOUND": "File not found"
 }

@@ -36,6 +36,7 @@ interface LeanCustomerDetail {
   phone?: string;
   address?: string;
   avatarUrl?: string;
+  documentUrls?: string[];
   riskLevel: RiskLevel;
   createdAt: Date;
 }
@@ -322,6 +323,7 @@ export class CustomersService {
       phone: customer.phone ?? null,
       address: customer.address ?? null,
       avatarUrl: customer.avatarUrl ?? null,
+      documentUrls: customer.documentUrls ?? [],
       riskLevel: customer.riskLevel,
       createdAt: customer.createdAt.toISOString(),
       pendingBalance,

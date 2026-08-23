@@ -25,6 +25,7 @@ export interface CustomerDetail {
   phone: string | null;
   address: string | null;
   avatarUrl: string | null;
+  documentUrls: string[];
   riskLevel: RiskLevel;
   createdAt: string;
   pendingBalance: number;

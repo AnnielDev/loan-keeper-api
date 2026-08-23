@@ -1,4 +1,5 @@
 {
   "FILE_REQUIRED": "需要一个文件",
-  "UPLOAD_SUCCESS": "文件上传成功"
+  "UPLOAD_SUCCESS": "文件上传成功",
+  "FILE_NOT_FOUND": "文件未找到"
 }

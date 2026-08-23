@@ -1,4 +1,5 @@
 {
   "FILE_REQUIRED": "Un fichier est requis",
-  "UPLOAD_SUCCESS": "Fichier téléchargé avec succès"
+  "UPLOAD_SUCCESS": "Fichier téléchargé avec succès",
+  "FILE_NOT_FOUND": "Fichier introuvable"
 }
