@@ -39,14 +39,15 @@ export class HomeService {
   ) {}
 
   async getDashboard(
+    userId: string,
     timezone?: string,
     balance = 0,
   ): Promise<DashboardResponse> {
     const now = new Date();
     const [customersCount, loans] = await Promise.all([
-      this.customerModel.countDocuments(),
+      this.customerModel.countDocuments({ registeredBy: userId }),
       this.loanModel
-        .find()
+        .find({ registeredBy: userId })
         .populate<{
           customer: PopulatedCustomer | null;
         }>('customer', 'fullName avatarUrl')
@@ -119,7 +120,10 @@ export class HomeService {
       amount: monthlyIncomeTotals.get(key) ?? 0,
     }));
 
-    const growthPercentage = await this.getLoanedGrowthPercentage(now);
+    const growthPercentage = await this.getLoanedGrowthPercentage(
+      now,
+      userId,
+    );
 
     return {
       pendingToday,
@@ -137,18 +141,28 @@ export class HomeService {
     };
   }
 
-  private async getLoanedGrowthPercentage(now: Date): Promise<number> {
+  private async getLoanedGrowthPercentage(
+    now: Date,
+    userId: string,
+  ): Promise<number> {
     const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const registeredBy = new Types.ObjectId(userId);
 
     const [[thisMonth], [lastMonth]] = await Promise.all([
       this.loanModel.aggregate<{ total: number }>([
-        { $match: { createdAt: { $gte: startOfThisMonth } } },
+        {
+          $match: {
+            registeredBy,
+            createdAt: { $gte: startOfThisMonth },
+          },
+        },
         { $group: { _id: null, total: { $sum: '$principal' } } },
       ]),
       this.loanModel.aggregate<{ total: number }>([
         {
           $match: {
+            registeredBy,
             createdAt: { $gte: startOfLastMonth, $lt: startOfThisMonth },
           },
         },

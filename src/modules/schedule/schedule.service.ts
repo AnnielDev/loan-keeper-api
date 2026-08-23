@@ -37,6 +37,7 @@ export class ScheduleService {
   async getEventsForMonth(
     month: number,
     year: number,
+    userId: string,
     timezone?: string,
     includePaid = false,
   ): Promise<ScheduleEvent[]> {
@@ -61,7 +62,10 @@ export class ScheduleService {
     if (!includePaid) installmentMatch.paid = false;
 
     const loans = await this.loanModel
-      .find({ installments: { $elemMatch: installmentMatch } })
+      .find({
+        registeredBy: userId,
+        installments: { $elemMatch: installmentMatch },
+      })
       .populate<{ customer: PopulatedCustomer | null }>(
         'customer',
         'fullName avatarUrl',
@@ -82,13 +86,14 @@ export class ScheduleService {
   }
 
   async getUpcoming(
+    userId: string,
     limit: number = DEFAULT_UPCOMING_LIMIT,
     timezone?: string,
   ): Promise<ScheduleEvent[]> {
     const now = new Date();
 
     const loans = await this.loanModel
-      .find({ 'installments.paid': false })
+      .find({ registeredBy: userId, 'installments.paid': false })
       .populate<{
         customer: PopulatedCustomer | null;
       }>('customer', 'fullName avatarUrl')

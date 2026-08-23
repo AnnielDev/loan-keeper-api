@@ -119,8 +119,25 @@ export class LoansService {
     query: ListLoansQueryDto,
     timezone?: string,
   ): Promise<LoanSummary[]> {
+    return this.findSummaries(query, timezone);
+  }
+
+  async findMine(
+    query: ListLoansQueryDto,
+    userId: string,
+    timezone?: string,
+  ): Promise<LoanSummary[]> {
+    return this.findSummaries(query, timezone, userId);
+  }
+
+  private async findSummaries(
+    query: ListLoansQueryDto,
+    timezone?: string,
+    registeredBy?: string,
+  ): Promise<LoanSummary[]> {
+    const filter = registeredBy ? { registeredBy } : {};
     const loans = await this.loanModel
-      .find()
+      .find(filter)
       .populate('customer', 'fullName avatarUrl')
       .sort({ createdAt: -1 })
       .lean<LeanLoan[]>();

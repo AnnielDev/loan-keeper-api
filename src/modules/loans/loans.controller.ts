@@ -31,6 +31,14 @@ export class LoansController {
     return this.loansService.findAll(query, user.timezone);
   }
 
+  @Get('mine')
+  findMine(
+    @Query() query: ListLoansQueryDto,
+    @CurrentUser() user: { userId: string; timezone?: string },
+  ) {
+    return this.loansService.findMine(query, user.userId, user.timezone);
+  }
+
   @Get('user/:userId')
   findByUser(@Param('userId') userId: string) {
     return this.loansService.findByUser(userId);

@@ -7,7 +7,10 @@ export class HomeController {
   constructor(private readonly homeService: HomeService) {}
 
   @Get('dashboard')
-  getDashboard(@CurrentUser() user: { timezone?: string; balance?: number }) {
-    return this.homeService.getDashboard(user.timezone, user.balance);
+  getDashboard(
+    @CurrentUser()
+    user: { userId: string; timezone?: string; balance?: number },
+  ) {
+    return this.homeService.getDashboard(user.userId, user.timezone, user.balance);
   }
 }

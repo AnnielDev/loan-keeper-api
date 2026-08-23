@@ -11,11 +11,12 @@ export class ScheduleController {
   @Get('events')
   getEvents(
     @Query() query: ScheduleEventsQueryDto,
-    @CurrentUser() user: { timezone?: string },
+    @CurrentUser() user: { userId: string; timezone?: string },
   ) {
     return this.scheduleService.getEventsForMonth(
       Number(query.month),
       Number(query.year),
+      user.userId,
       user.timezone,
       query.includePaid === 'true',
     );
@@ -24,9 +25,10 @@ export class ScheduleController {
   @Get('upcoming')
   getUpcoming(
     @Query() query: ScheduleUpcomingQueryDto,
-    @CurrentUser() user: { timezone?: string },
+    @CurrentUser() user: { userId: string; timezone?: string },
   ) {
     return this.scheduleService.getUpcoming(
+      user.userId,
       query.limit !== undefined ? Number(query.limit) : undefined,
       user.timezone,
     );
