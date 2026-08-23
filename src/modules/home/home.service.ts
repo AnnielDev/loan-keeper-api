@@ -120,10 +120,7 @@ export class HomeService {
       amount: monthlyIncomeTotals.get(key) ?? 0,
     }));
 
-    const growthPercentage = await this.getLoanedGrowthPercentage(
-      now,
-      userId,
-    );
+    const growthPercentage = await this.getLoanedGrowthPercentage(now, userId);
 
     return {
       pendingToday,

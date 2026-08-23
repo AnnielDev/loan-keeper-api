@@ -9,8 +9,16 @@ export class HomeController {
   @Get('dashboard')
   getDashboard(
     @CurrentUser()
-    user: { userId: string; timezone?: string; balance?: number },
+    user: {
+      userId: string;
+      timezone?: string;
+      balance?: number;
+    },
   ) {
-    return this.homeService.getDashboard(user.userId, user.timezone, user.balance);
+    return this.homeService.getDashboard(
+      user.userId,
+      user.timezone,
+      user.balance,
+    );
   }
 }

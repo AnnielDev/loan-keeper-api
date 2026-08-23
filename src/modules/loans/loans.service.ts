@@ -387,18 +387,41 @@ export class LoansService {
   }
 
   private calculateTotalInterest(dto: CreateLoanDto): number {
+    const rate = dto.interestRate / 100;
+
     if (dto.interestType === InterestType.COMPOUND) {
-      const compounded =
-        dto.principal *
-        Math.pow(1 + dto.interestRate / 100, dto.installmentsCount);
-      return this.round(compounded - dto.principal);
+      const installment = this.calculateCompoundInstallment(
+        dto.principal,
+        rate,
+        dto.installmentsCount,
+      );
+      return this.round(installment * dto.installmentsCount - dto.principal);
     }
 
-    return this.round(dto.principal * (dto.interestRate / 100));
+    return this.round(dto.principal * rate * dto.installmentsCount);
+  }
+
+  /** Cuota fija de una amortización francesa (interés compuesto sobre saldo insoluto). */
+  private calculateCompoundInstallment(
+    principal: number,
+    rate: number,
+    n: number,
+  ): number {
+    if (rate === 0) return this.round(principal / n);
+    const growth = Math.pow(1 + rate, n);
+    return this.round((principal * rate * growth) / (growth - 1));
   }
 
   private buildInstallments(dto: CreateLoanDto, totalAmount: number) {
-    const baseAmount = this.round(totalAmount / dto.installmentsCount);
+    const rate = dto.interestRate / 100;
+    const baseAmount =
+      dto.interestType === InterestType.COMPOUND
+        ? this.calculateCompoundInstallment(
+            dto.principal,
+            rate,
+            dto.installmentsCount,
+          )
+        : this.round(totalAmount / dto.installmentsCount);
     const startDate = new Date(dto.startDate);
 
     return Array.from({ length: dto.installmentsCount }, (_, index) => {
