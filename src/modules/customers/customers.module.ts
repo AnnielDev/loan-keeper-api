@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LoansModule } from '../loans/loans.module';
+import { UploadsModule } from '../uploads/uploads.module';
 import { CustomersController } from './customers.controller';
 import { CustomersService } from './customers.service';
 import { Customer, CustomerSchema } from './schemas/customer.schema';
@@ -11,6 +12,7 @@ import { Customer, CustomerSchema } from './schemas/customer.schema';
       { name: Customer.name, schema: CustomerSchema },
     ]),
     LoansModule,
+    UploadsModule,
   ],
   controllers: [CustomersController],
   providers: [CustomersService],

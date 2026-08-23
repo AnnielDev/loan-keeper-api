@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 import { I18nContext } from 'nestjs-i18n';
 import { diffInDaysFromDueDate } from '../../utils/date/timezone';
 import { User, UserDocument } from '../auth/schemas/user.schema';
+import { UploadsService } from '../uploads/uploads.service';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { ListLoansQueryDto } from './dto/list-loans-query.dto';
 import { PayInstallmentDto } from './dto/pay-installment.dto';
@@ -83,6 +84,7 @@ export class LoansService {
   constructor(
     @InjectModel(Loan.name) private loanModel: Model<LoanDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly uploadsService: UploadsService,
   ) {}
 
   async create(dto: CreateLoanDto, userId: string) {
@@ -346,6 +348,10 @@ export class LoansService {
       $inc: { balance: loan.principal - paidAmount },
     });
 
+    await this.uploadsService.removeMany(
+      loan.installments.map((installment) => installment.receiptUrl),
+    );
+
     return { message: I18nContext.current()?.t('loans.LOAN_DELETED') };
   }
 
@@ -368,6 +374,8 @@ export class LoansService {
       );
     }
 
+    const previousReceiptUrl = installment.receiptUrl;
+
     installment.paid = true;
     installment.paidAt = dto.paymentDate
       ? new Date(dto.paymentDate)
@@ -383,6 +391,10 @@ export class LoansService {
     await this.userModel.findByIdAndUpdate(loan.registeredBy, {
       $inc: { balance: installment.paidAmount },
     });
+
+    if (previousReceiptUrl && previousReceiptUrl !== dto.receiptUrl) {
+      await this.uploadsService.remove(previousReceiptUrl);
+    }
 
     return {
       message: I18nContext.current()?.t('loans.INSTALLMENT_PAID'),

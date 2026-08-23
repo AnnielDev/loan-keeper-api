@@ -8,6 +8,7 @@ import { Model, Types } from 'mongoose';
 import { I18nContext } from 'nestjs-i18n';
 import { diffInDaysFromDueDate } from '../../utils/date/timezone';
 import { Loan, LoanDocument, LoanType } from '../loans/schemas/loan.schema';
+import { UploadsService } from '../uploads/uploads.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { ListCustomersQueryDto } from './dto/list-customers-query.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
@@ -87,6 +88,7 @@ export class CustomersService {
     @InjectModel(Customer.name)
     private customerModel: Model<CustomerDocument>,
     @InjectModel(Loan.name) private loanModel: Model<LoanDocument>,
+    private readonly uploadsService: UploadsService,
   ) {}
 
   async create(dto: CreateCustomerDto, userId: string) {
@@ -111,6 +113,24 @@ export class CustomersService {
 
   async update(id: string, dto: UpdateCustomerDto) {
     try {
+      const previous = await this.customerModel.findById(id);
+      if (!previous) {
+        throw new NotFoundException(
+          I18nContext.current()?.t('customers.CUSTOMER_NOT_FOUND'),
+        );
+      }
+
+      const removedImageUrls: string[] = [];
+      if ('avatarUrl' in dto && previous.avatarUrl !== dto.avatarUrl) {
+        if (previous.avatarUrl) removedImageUrls.push(previous.avatarUrl);
+      }
+      if (dto.documentUrls) {
+        const keptUrls = new Set(dto.documentUrls);
+        removedImageUrls.push(
+          ...previous.documentUrls.filter((url) => !keptUrls.has(url)),
+        );
+      }
+
       const customer = await this.customerModel.findByIdAndUpdate(id, dto, {
         new: true,
       });
@@ -119,6 +139,11 @@ export class CustomersService {
           I18nContext.current()?.t('customers.CUSTOMER_NOT_FOUND'),
         );
       }
+
+      if (removedImageUrls.length > 0) {
+        await this.uploadsService.removeMany(removedImageUrls);
+      }
+
       return {
         message: I18nContext.current()?.t('customers.CUSTOMER_UPDATED'),
         data: customer,
@@ -359,6 +384,11 @@ export class CustomersService {
     }
 
     await this.customerModel.deleteOne({ _id: id });
+
+    await this.uploadsService.removeMany([
+      customer.avatarUrl,
+      ...customer.documentUrls,
+    ]);
 
     return { message: I18nContext.current()?.t('customers.CUSTOMER_DELETED') };
   }

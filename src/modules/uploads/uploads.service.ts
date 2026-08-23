@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
@@ -7,8 +7,13 @@ import { I18nContext } from 'nestjs-i18n';
 import { Readable } from 'stream';
 import { StoredFile, StoredFileDocument } from './schemas/stored-file.schema';
 
+const CLOUDINARY_PUBLIC_ID_PATTERN =
+  /\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+(?:\?.*)?$/;
+const LOCAL_FILE_ID_PATTERN = /\/uploads\/([a-fA-F0-9]{24})(?:\?.*)?$/;
+
 @Injectable()
 export class UploadsService {
+  private readonly logger = new Logger(UploadsService.name);
   private readonly cloudinaryConfigured: boolean;
 
   constructor(
@@ -68,5 +73,30 @@ export class UploadsService {
     }
 
     return file;
+  }
+
+  async remove(url?: string | null): Promise<void> {
+    if (!url) return;
+
+    try {
+      const publicId = CLOUDINARY_PUBLIC_ID_PATTERN.exec(url)?.[1];
+      if (publicId) {
+        await cloudinary.uploader.destroy(publicId, {
+          resource_type: 'image',
+        });
+        return;
+      }
+
+      const localId = LOCAL_FILE_ID_PATTERN.exec(url)?.[1];
+      if (localId) {
+        await this.storedFileModel.deleteOne({ _id: localId });
+      }
+    } catch (error) {
+      this.logger.warn(`Failed to delete file for URL "${url}": ${error}`);
+    }
+  }
+
+  async removeMany(urls: (string | null | undefined)[]): Promise<void> {
+    await Promise.all(urls.map((url) => this.remove(url)));
   }
 }
