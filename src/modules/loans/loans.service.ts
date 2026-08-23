@@ -12,6 +12,7 @@ import {
   LoanDetail,
   LoanDetailInstallment,
 } from './interfaces/loan-detail.interface';
+import { PaymentDetail } from './interfaces/payment-detail.interface';
 import { LoanStatus, LoanSummary } from './interfaces/loan-summary.interface';
 import {
   InterestType,
@@ -267,6 +268,59 @@ export class LoansService {
       nextInstallmentId: nextInstallment ? String(nextInstallment._id) : null,
       nextInstallmentAmount: nextInstallment?.amount ?? null,
       installments,
+    };
+  }
+
+  async getPaymentDetail(
+    loanId: string,
+    installmentId: string,
+  ): Promise<PaymentDetail> {
+    const loan = await this.loanModel
+      .findById(loanId)
+      .populate<{
+        customer: LeanCustomer | null;
+      }>('customer', 'fullName avatarUrl')
+      .lean<LeanLoanDetail>();
+    if (!loan) {
+      throw new NotFoundException(
+        I18nContext.current()?.t('loans.LOAN_NOT_FOUND'),
+      );
+    }
+
+    const installment = loan.installments.find(
+      (item) => String(item._id) === installmentId,
+    );
+    if (!installment || !installment.paid) {
+      throw new NotFoundException(
+        I18nContext.current()?.t('loans.INSTALLMENT_NOT_FOUND'),
+      );
+    }
+
+    const paidAmount = installment.paidAmount ?? installment.amount;
+    const principalRatio =
+      loan.totalAmount > 0 ? loan.principal / loan.totalAmount : 0;
+    const principalPortion = this.round(paidAmount * principalRatio);
+    const interestPortion = this.round(paidAmount - principalPortion);
+
+    return {
+      installmentId: String(installment._id),
+      loanId: String(loan._id),
+      loanCode: loan.code,
+      loanType: loan.type,
+      customerName: loan.customer?.fullName ?? '',
+      customerAvatarUrl: loan.customer?.avatarUrl ?? null,
+      amount: installment.amount,
+      paidAmount,
+      paidAt: installment.paidAt ?? null,
+      paymentMethod: installment.paymentMethod ?? null,
+      referenceNumber: installment.referenceNumber ?? null,
+      receiptUrl: installment.receiptUrl ?? null,
+      notes: installment.notes ?? null,
+      principal: loan.principal,
+      totalInterest: loan.totalInterest,
+      totalAmount: loan.totalAmount,
+      principalPortion,
+      interestPortion,
     };
   }
 

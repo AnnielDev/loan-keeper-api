@@ -67,4 +67,12 @@ export class LoansController {
   ) {
     return this.loansService.payInstallment(loanId, installmentId, dto);
   }
+
+  @Get(':loanId/installments/:installmentId')
+  getPaymentDetail(
+    @Param('loanId') loanId: string,
+    @Param('installmentId') installmentId: string,
+  ) {
+    return this.loansService.getPaymentDetail(loanId, installmentId);
+  }
 }
