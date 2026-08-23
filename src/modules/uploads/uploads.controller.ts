@@ -40,8 +40,10 @@ export class UploadsController {
       );
     }
 
-    const id = await this.uploadsService.save(file.buffer, file.mimetype);
-    const url = `${req.protocol}://${req.get('host')}/uploads/${id}`;
+    const result = await this.uploadsService.save(file.buffer, file.mimetype);
+    const url = result.startsWith('http')
+      ? result
+      : `${req.protocol}://${req.get('host')}/uploads/${result}`;
     return {
       message: I18nContext.current()?.t('uploads.UPLOAD_SUCCESS'),
       data: { url },

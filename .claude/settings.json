@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"Stop-Process -Id 23332 -Force\")",
+      "WebSearch",
+      "Bash(pnpm remove *)",
+      "Bash(pnpm add *)"
+    ]
+  }
+}
