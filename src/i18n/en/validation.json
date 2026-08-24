@@ -3,6 +3,7 @@
   "IS_STRING": "{property} must be text",
   "IS_ARRAY": "{property} must be a list",
   "MIN_LENGTH": "{property} must be at least {constraints.0} characters long",
+  "MAX_LENGTH": "{property} must be at most {constraints.0} characters long",
   "IS_MONGO_ID": "{property} must be a valid identifier",
   "IS_ENUM": "{property} has an invalid value",
   "IS_NUMBER": "{property} must be a number",

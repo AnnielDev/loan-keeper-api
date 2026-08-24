@@ -2,5 +2,6 @@
   "USER_NOT_FOUND": "未找到用户",
   "LANGUAGE_UPDATED": "语言更新成功",
   "CURRENCY_UPDATED": "货币更新成功",
-  "LOCATION_UPDATED": "位置更新成功"
+  "LOCATION_UPDATED": "位置更新成功",
+  "NAME_UPDATED": "姓名更新成功"
 }

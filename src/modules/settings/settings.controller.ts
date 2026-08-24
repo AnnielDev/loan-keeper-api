@@ -4,6 +4,7 @@ import { Public } from '../auth/decorators/public.decorator';
 import { UpdateCurrencyDto } from './dto/update-currency.dto';
 import { UpdateLanguageDto } from './dto/update-language.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
+import { UpdateNameDto } from './dto/update-name.dto';
 import { SettingsService } from './settings.service';
 
 @Controller('settings')
@@ -43,5 +44,13 @@ export class SettingsController {
     @CurrentUser() user: { userId: string },
   ) {
     return this.settingsService.updateLocation(user.userId, dto);
+  }
+
+  @Patch('name')
+  updateName(
+    @Body() dto: UpdateNameDto,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.settingsService.updateName(user.userId, dto);
   }
 }

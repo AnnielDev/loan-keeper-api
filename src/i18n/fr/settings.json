@@ -2,5 +2,6 @@
   "USER_NOT_FOUND": "Utilisateur introuvable",
   "LANGUAGE_UPDATED": "Langue mise à jour avec succès",
   "CURRENCY_UPDATED": "Devise mise à jour avec succès",
-  "LOCATION_UPDATED": "Emplacement mis à jour avec succès"
+  "LOCATION_UPDATED": "Emplacement mis à jour avec succès",
+  "NAME_UPDATED": "Nom mis à jour avec succès"
 }

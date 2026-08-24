@@ -7,6 +7,7 @@ import { CURRENCIES } from './currencies';
 import { UpdateCurrencyDto } from './dto/update-currency.dto';
 import { UpdateLanguageDto } from './dto/update-language.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
+import { UpdateNameDto } from './dto/update-name.dto';
 import { LANGUAGES } from './languages';
 
 @Injectable()
@@ -60,6 +61,23 @@ export class SettingsService {
     }
     return {
       message: I18nContext.current()?.t('settings.LOCATION_UPDATED'),
+      data: user,
+    };
+  }
+
+  async updateName(userId: string, dto: UpdateNameDto) {
+    const user = await this.userModel.findByIdAndUpdate(
+      userId,
+      { name: dto.name },
+      { new: true },
+    );
+    if (!user) {
+      throw new NotFoundException(
+        I18nContext.current()?.t('settings.USER_NOT_FOUND'),
+      );
+    }
+    return {
+      message: I18nContext.current()?.t('settings.NAME_UPDATED'),
       data: user,
     };
   }

@@ -2,5 +2,6 @@
   "USER_NOT_FOUND": "User not found",
   "LANGUAGE_UPDATED": "Language updated successfully",
   "CURRENCY_UPDATED": "Currency updated successfully",
-  "LOCATION_UPDATED": "Location updated successfully"
+  "LOCATION_UPDATED": "Location updated successfully",
+  "NAME_UPDATED": "Name updated successfully"
 }
