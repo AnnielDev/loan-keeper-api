@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import * as crypto from 'crypto';
 import { Model, Types } from 'mongoose';
 import { I18nContext } from 'nestjs-i18n';
 import { diffInDaysFromDueDate } from '../../utils/date/timezone';
@@ -24,7 +25,7 @@ import {
   PaymentMethod,
 } from './schemas/loan.schema';
 
-const CODE_SEQUENCE_PADDING = 4;
+const CODE_SEQUENCE_PADDING = 6;
 
 interface LeanInstallment {
   dueDate: Date;
@@ -522,9 +523,20 @@ export class LoansService {
 
   private async generateCode(type: CreateLoanDto['type']): Promise<string> {
     const prefix = LOAN_TYPE_CODE_PREFIX[type];
-    const count = await this.loanModel.countDocuments({ type });
-    const sequence = String(count + 1).padStart(CODE_SEQUENCE_PADDING, '0');
-    return `${prefix}-${sequence}`;
+    const maxAttempts = 20;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const sequence = String(
+        crypto.randomInt(0, 10 ** CODE_SEQUENCE_PADDING),
+      ).padStart(CODE_SEQUENCE_PADDING, '0');
+      const code = `${prefix}-${sequence}`;
+      const exists = await this.loanModel.exists({ code });
+      if (!exists) {
+        return code;
+      }
+    }
+
+    throw new Error(`Unable to generate a unique loan code for type "${type}"`);
   }
 
   private round(value: number): number {
