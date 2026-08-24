@@ -15,8 +15,6 @@ export enum InterestType {
 }
 
 export enum PaymentFrequency {
-  WEEKLY = 'weekly',
-  BIWEEKLY = 'biweekly',
   MONTHLY = 'monthly',
   EVERY_2_MONTHS = 'every_2_months',
   EVERY_3_MONTHS = 'every_3_months',

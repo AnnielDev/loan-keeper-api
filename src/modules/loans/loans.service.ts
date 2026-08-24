@@ -510,11 +510,7 @@ export class LoansService {
     periods: number,
   ): Date {
     const date = new Date(startDate);
-    if (frequency === PaymentFrequency.WEEKLY) {
-      date.setDate(date.getDate() + periods * 7);
-    } else if (frequency === PaymentFrequency.BIWEEKLY) {
-      date.setDate(date.getDate() + periods * 14);
-    } else if (frequency === PaymentFrequency.EVERY_2_MONTHS) {
+    if (frequency === PaymentFrequency.EVERY_2_MONTHS) {
       date.setMonth(date.getMonth() + periods * 2);
     } else if (frequency === PaymentFrequency.EVERY_3_MONTHS) {
       date.setMonth(date.getMonth() + periods * 3);
