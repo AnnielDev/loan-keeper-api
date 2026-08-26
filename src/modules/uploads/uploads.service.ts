@@ -38,7 +38,12 @@ export class UploadsService {
     if (this.cloudinaryConfigured) {
       const result = await new Promise<UploadApiResponse>((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
-          { resource_type: 'image' },
+          {
+            resource_type: 'image',
+            quality: 'auto:good',
+            fetch_format: 'auto',
+            transformation: [{ width: 2000, height: 2000, crop: 'limit' }],
+          },
           (error, uploadResult) => {
             if (error || !uploadResult) {
               reject(
