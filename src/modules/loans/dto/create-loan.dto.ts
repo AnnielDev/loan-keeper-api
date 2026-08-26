@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsDateString,
   IsEnum,
   IsInt,
@@ -47,4 +48,7 @@ export class CreateLoanDto {
     { message: i18nValidationMessage('validation.IS_DATE_STRING') },
   )
   startDate!: string;
+
+  @IsBoolean({ message: i18nValidationMessage('validation.IS_BOOLEAN') })
+  isLegacy!: boolean;
 }

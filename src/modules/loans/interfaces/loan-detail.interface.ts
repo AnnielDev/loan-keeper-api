@@ -34,6 +34,7 @@ export interface LoanDetail {
   startDate: Date;
   totalInterest: number;
   totalAmount: number;
+  isLegacy: boolean;
   paidAmount: number;
   remainingBalance: number;
   progressPercent: number;

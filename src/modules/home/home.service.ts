@@ -26,6 +26,7 @@ interface LeanLoan {
   _id: Types.ObjectId;
   principal: number;
   createdAt: Date;
+  isLegacy: boolean;
   installments: Installment[];
   customer: PopulatedCustomer | null;
 }
@@ -64,6 +65,8 @@ export class HomeService {
     const upcomingDueDates: UpcomingDueDate[] = [];
 
     for (const loan of loans) {
+      if (loan.isLegacy) continue;
+
       totalLoaned += loan.principal;
 
       let hasOverdueInstallment = false;
@@ -151,6 +154,7 @@ export class HomeService {
         {
           $match: {
             registeredBy,
+            isLegacy: { $ne: true },
             createdAt: { $gte: startOfThisMonth },
           },
         },
@@ -160,6 +164,7 @@ export class HomeService {
         {
           $match: {
             registeredBy,
+            isLegacy: { $ne: true },
             createdAt: { $gte: startOfLastMonth, $lt: startOfThisMonth },
           },
         },

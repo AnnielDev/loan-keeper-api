@@ -7,6 +7,7 @@ export interface LoanSummary {
   customerName: string;
   customerAvatarUrl: string | null;
   totalAmount: number;
+  isLegacy: boolean;
   progressPercent: number;
   status: LoanStatus;
   nextPaymentDate: string | null;

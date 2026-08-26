@@ -46,6 +46,7 @@ interface LeanCustomerDetail {
 
 interface LeanLoan {
   customer: Types.ObjectId;
+  isLegacy: boolean;
   installments: { amount: number; paid: boolean; dueDate: Date }[];
 }
 
@@ -63,6 +64,7 @@ interface LeanLoanDetail {
   type: LoanType;
   principal: number;
   totalAmount: number;
+  isLegacy: boolean;
   startDate: Date;
   installments: LeanInstallment[];
 }
@@ -198,7 +200,7 @@ export class CustomersService {
     const customerIds = customers.map((customer) => customer._id);
     const loans = await this.loanModel
       .find({ customer: { $in: customerIds } })
-      .select('customer installments')
+      .select('customer isLegacy installments')
       .lean<LeanLoan[]>();
 
     const now = new Date();
@@ -208,6 +210,8 @@ export class CustomersService {
     >();
 
     for (const loan of loans) {
+      if (loan.isLegacy) continue;
+
       const key = String(loan.customer);
       const entry = balanceByCustomer.get(key) ?? {
         pendingBalance: 0,
@@ -282,7 +286,9 @@ export class CustomersService {
     let totalCollected = 0;
 
     const loanSummaries: CustomerLoanSummary[] = loans.map((loan) => {
-      totalLoaned += loan.principal;
+      if (!loan.isLegacy) {
+        totalLoaned += loan.principal;
+      }
 
       const paidAmount = loan.installments
         .filter((installment) => installment.paid)
@@ -291,15 +297,19 @@ export class CustomersService {
             sum + (installment.paidAmount ?? installment.amount),
           0,
         );
-      totalCollected += paidAmount;
+      if (!loan.isLegacy) {
+        totalCollected += paidAmount;
+      }
 
       const unpaidInstallments = loan.installments
         .filter((installment) => !installment.paid)
         .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
-      pendingBalance += unpaidInstallments.reduce(
-        (sum, installment) => sum + installment.amount,
-        0,
-      );
+      if (!loan.isLegacy) {
+        pendingBalance += unpaidInstallments.reduce(
+          (sum, installment) => sum + installment.amount,
+          0,
+        );
+      }
 
       const progressPercent =
         loan.totalAmount > 0
@@ -332,6 +342,7 @@ export class CustomersService {
         type: loan.type,
         principal: loan.principal,
         totalAmount: loan.totalAmount,
+        isLegacy: loan.isLegacy,
         paidAmount,
         progressPercent,
         status,

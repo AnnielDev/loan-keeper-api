@@ -5,6 +5,7 @@ export interface PaymentDetail {
   loanId: string;
   loanCode: string;
   loanType: LoanType;
+  isLegacy: boolean;
   customerName: string;
   customerAvatarUrl: string | null;
   amount: number;

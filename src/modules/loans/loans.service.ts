@@ -45,6 +45,7 @@ interface LeanLoan {
   code: string;
   customer: LeanCustomer;
   totalAmount: number;
+  isLegacy: boolean;
   installments: LeanInstallment[];
 }
 
@@ -72,6 +73,7 @@ interface LeanLoanDetail {
   startDate: Date;
   totalInterest: number;
   totalAmount: number;
+  isLegacy: boolean;
   customer: LeanCustomer | null;
   installments: LeanDetailInstallment[];
 }
@@ -107,11 +109,14 @@ export class LoansService {
       totalAmount,
       installments,
       registeredBy: userId,
+      isLegacy: dto.isLegacy,
     });
 
-    await this.userModel.findByIdAndUpdate(userId, {
-      $inc: { balance: -dto.principal },
-    });
+    if (!loan.isLegacy) {
+      await this.userModel.findByIdAndUpdate(userId, {
+        $inc: { balance: -dto.principal },
+      });
+    }
 
     return {
       message: I18nContext.current()?.t('loans.LOAN_CREATED'),
@@ -139,7 +144,16 @@ export class LoansService {
     timezone?: string,
     registeredBy?: string,
   ): Promise<LoanSummary[]> {
-    const filter = registeredBy ? { registeredBy } : {};
+    const filter: {
+      registeredBy?: string;
+      isLegacy?: boolean | { $ne: true };
+    } = registeredBy ? { registeredBy } : {};
+    if (query.origin === 'new') {
+      filter.isLegacy = { $ne: true };
+    } else if (query.origin === 'legacy') {
+      filter.isLegacy = true;
+    }
+
     const loans = await this.loanModel
       .find(filter)
       .populate('customer', 'fullName avatarUrl')
@@ -261,6 +275,7 @@ export class LoansService {
       startDate: loan.startDate,
       totalInterest: loan.totalInterest,
       totalAmount: loan.totalAmount,
+      isLegacy: loan.isLegacy,
       paidAmount,
       remainingBalance: loan.totalAmount - paidAmount,
       progressPercent,
@@ -310,6 +325,7 @@ export class LoansService {
       loanId: String(loan._id),
       loanCode: loan.code,
       loanType: loan.type,
+      isLegacy: loan.isLegacy,
       customerName: loan.customer?.fullName ?? '',
       customerAvatarUrl: loan.customer?.avatarUrl ?? null,
       amount: installment.amount,
@@ -345,9 +361,11 @@ export class LoansService {
 
     await this.loanModel.deleteOne({ _id: id });
 
-    await this.userModel.findByIdAndUpdate(loan.registeredBy, {
-      $inc: { balance: loan.principal - paidAmount },
-    });
+    if (!loan.isLegacy) {
+      await this.userModel.findByIdAndUpdate(loan.registeredBy, {
+        $inc: { balance: loan.principal - paidAmount },
+      });
+    }
 
     await this.uploadsService.removeMany(
       loan.installments.map((installment) => installment.receiptUrl),
@@ -389,9 +407,11 @@ export class LoansService {
 
     await loan.save();
 
-    await this.userModel.findByIdAndUpdate(loan.registeredBy, {
-      $inc: { balance: installment.paidAmount },
-    });
+    if (!loan.isLegacy) {
+      await this.userModel.findByIdAndUpdate(loan.registeredBy, {
+        $inc: { balance: installment.paidAmount },
+      });
+    }
 
     if (previousReceiptUrl && previousReceiptUrl !== dto.receiptUrl) {
       await this.uploadsService.remove(previousReceiptUrl);
@@ -446,6 +466,7 @@ export class LoansService {
       customerName: loan.customer?.fullName ?? '',
       customerAvatarUrl: loan.customer?.avatarUrl ?? null,
       totalAmount: loan.totalAmount,
+      isLegacy: loan.isLegacy,
       progressPercent,
       status,
       nextPaymentDate,

@@ -105,6 +105,15 @@ export class Loan {
 
   @Prop({ type: SchemaTypes.ObjectId, ref: 'User', required: true })
   registeredBy!: Types.ObjectId;
+
+  /**
+   * A loan migrated from a process the lender ran before adopting this app.
+   * Legacy loans are recorded for tracking (schedule, payments) but must
+   * never move the lender's own capital balance or feed monetary
+   * aggregates/statistics, since that money was already lent out before.
+   */
+  @Prop({ default: false })
+  isLegacy!: boolean;
 }
 
 export const LoanSchema = SchemaFactory.createForClass(Loan);

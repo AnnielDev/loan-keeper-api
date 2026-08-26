@@ -2,6 +2,7 @@ import { IsIn, IsOptional, IsString } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 
 export type LoanStatusFilter = 'all' | 'active' | 'overdue' | 'paid';
+export type LoanOriginFilter = 'all' | 'new' | 'legacy';
 
 export class ListLoansQueryDto {
   @IsOptional()
@@ -13,4 +14,10 @@ export class ListLoansQueryDto {
     message: i18nValidationMessage('validation.IS_ENUM'),
   })
   status?: LoanStatusFilter;
+
+  @IsOptional()
+  @IsIn(['all', 'new', 'legacy'], {
+    message: i18nValidationMessage('validation.IS_ENUM'),
+  })
+  origin?: LoanOriginFilter;
 }
