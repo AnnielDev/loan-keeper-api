@@ -1,4 +1,4 @@
-import { IsIn, IsOptional, IsString } from 'class-validator';
+import { IsIn, IsNumberString, IsOptional, IsString } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 
 export type LoanStatusFilter = 'all' | 'active' | 'overdue' | 'paid';
@@ -20,4 +20,18 @@ export class ListLoansQueryDto {
     message: i18nValidationMessage('validation.IS_ENUM'),
   })
   origin?: LoanOriginFilter;
+
+  @IsOptional()
+  @IsNumberString(
+    {},
+    { message: i18nValidationMessage('validation.IS_NUMBER_STRING') },
+  )
+  page?: string;
+
+  @IsOptional()
+  @IsNumberString(
+    {},
+    { message: i18nValidationMessage('validation.IS_NUMBER_STRING') },
+  )
+  limit?: string;
 }

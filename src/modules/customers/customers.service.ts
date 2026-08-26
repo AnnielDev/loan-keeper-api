@@ -17,6 +17,7 @@ import {
   CustomerLoanSummary,
 } from './interfaces/customer-detail.interface';
 import { CustomerSummary } from './interfaces/customer-summary.interface';
+import { PaginatedResponse } from '../../utils/pagination/paginated-response.interface';
 import {
   Customer,
   CustomerDocument,
@@ -163,7 +164,7 @@ export class CustomersService {
   async findAll(
     query: ListCustomersQueryDto,
     timezone?: string,
-  ): Promise<CustomerSummary[]> {
+  ): Promise<CustomerSummary[] | PaginatedResponse<CustomerSummary>> {
     return this.findSummaries(query, timezone);
   }
 
@@ -171,7 +172,7 @@ export class CustomersService {
     query: ListCustomersQueryDto,
     userId: string,
     timezone?: string,
-  ): Promise<CustomerSummary[]> {
+  ): Promise<CustomerSummary[] | PaginatedResponse<CustomerSummary>> {
     return this.findSummaries(query, timezone, userId);
   }
 
@@ -179,7 +180,7 @@ export class CustomersService {
     query: ListCustomersQueryDto,
     timezone?: string,
     registeredBy?: string,
-  ): Promise<CustomerSummary[]> {
+  ): Promise<CustomerSummary[] | PaginatedResponse<CustomerSummary>> {
     const filter: {
       $or?: Array<{ fullName: RegExp } | { phone: RegExp }>;
       registeredBy?: string;
@@ -249,10 +250,23 @@ export class CustomersService {
       };
     });
 
-    if (query.status === 'active' || query.status === 'overdue') {
-      return summaries.filter((summary) => summary.status === query.status);
+    const filtered =
+      query.status === 'active' || query.status === 'overdue'
+        ? summaries.filter((summary) => summary.status === query.status)
+        : summaries;
+
+    if (!query.limit) {
+      return filtered;
     }
-    return summaries;
+
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit);
+    const total = filtered.length;
+
+    return {
+      data: filtered.slice((page - 1) * limit, page * limit),
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   async findOne(id: string) {

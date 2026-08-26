@@ -1,4 +1,4 @@
-import { IsIn, IsOptional, IsString } from 'class-validator';
+import { IsIn, IsNumberString, IsOptional, IsString } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 
 export type CustomerStatusFilter = 'all' | 'active' | 'overdue';
@@ -13,4 +13,18 @@ export class ListCustomersQueryDto {
     message: i18nValidationMessage('validation.IS_ENUM'),
   })
   status?: CustomerStatusFilter;
+
+  @IsOptional()
+  @IsNumberString(
+    {},
+    { message: i18nValidationMessage('validation.IS_NUMBER_STRING') },
+  )
+  page?: string;
+
+  @IsOptional()
+  @IsNumberString(
+    {},
+    { message: i18nValidationMessage('validation.IS_NUMBER_STRING') },
+  )
+  limit?: string;
 }

@@ -16,6 +16,7 @@ import {
 } from './interfaces/loan-detail.interface';
 import { PaymentDetail } from './interfaces/payment-detail.interface';
 import { LoanStatus, LoanSummary } from './interfaces/loan-summary.interface';
+import { PaginatedResponse } from '../../utils/pagination/paginated-response.interface';
 import {
   InterestType,
   LOAN_TYPE_CODE_PREFIX,
@@ -127,7 +128,7 @@ export class LoansService {
   async findAll(
     query: ListLoansQueryDto,
     timezone?: string,
-  ): Promise<LoanSummary[]> {
+  ): Promise<LoanSummary[] | PaginatedResponse<LoanSummary>> {
     return this.findSummaries(query, timezone);
   }
 
@@ -135,7 +136,7 @@ export class LoansService {
     query: ListLoansQueryDto,
     userId: string,
     timezone?: string,
-  ): Promise<LoanSummary[]> {
+  ): Promise<LoanSummary[] | PaginatedResponse<LoanSummary>> {
     return this.findSummaries(query, timezone, userId);
   }
 
@@ -143,7 +144,7 @@ export class LoansService {
     query: ListLoansQueryDto,
     timezone?: string,
     registeredBy?: string,
-  ): Promise<LoanSummary[]> {
+  ): Promise<LoanSummary[] | PaginatedResponse<LoanSummary>> {
     const filter: {
       registeredBy?: string;
       isLegacy?: boolean | { $ne: true };
@@ -177,7 +178,18 @@ export class LoansService {
       );
     }
 
-    return summaries;
+    if (!query.limit) {
+      return summaries;
+    }
+
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit);
+    const total = summaries.length;
+
+    return {
+      data: summaries.slice((page - 1) * limit, page * limit),
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   findByUser(userId: string) {
