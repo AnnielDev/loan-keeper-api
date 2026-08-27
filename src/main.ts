@@ -1,8 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { setServers } from 'dns';
+import helmet from 'helmet';
 import { I18nValidationExceptionFilter, I18nValidationPipe } from 'nestjs-i18n';
 import { AppModule } from './app.module';
+import { enforceHttps } from './utils/security/enforce-https.middleware';
 import { sanitizeMongoOperators } from './utils/security/sanitize-mongo.middleware';
 
 // Some networks hand out a link-local IPv6 DNS server (fe80::1), which
@@ -18,6 +20,11 @@ async function bootstrap() {
   // Auth uses a Bearer token (no cookies), so an open origin carries no CSRF
   // risk and lets clients (Expo dev builds, mobile devices) connect freely.
   app.enableCors();
+
+  app.use(helmet({ hsts: { maxAge: 15_552_000, includeSubDomains: true } }));
+  if (process.env.NODE_ENV === 'production') {
+    app.use(enforceHttps);
+  }
 
   app.use(sanitizeMongoOperators);
   app.useGlobalPipes(new I18nValidationPipe({ whitelist: true }));
