@@ -16,18 +16,28 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 import { VerifyResetCodeDto } from './dto/verify-reset-code.dto';
-import { User, UserDocument } from './schemas/user.schema';
+import {
+  PendingUser,
+  PendingUserDocument,
+} from './schemas/pending-user.schema';
+import { Language, User, UserDocument } from './schemas/user.schema';
 
 const SALT_ROUNDS = 10;
 const RESET_CODE_EXPIRES_MS = 10 * 60 * 1000;
 const MAX_RESET_CODE_ATTEMPTS = 5;
+const VERIFICATION_CODE_EXPIRES_MS = 10 * 60 * 1000;
+const MAX_VERIFICATION_ATTEMPTS = 5;
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(PendingUser.name)
+    private pendingUserModel: Model<PendingUserDocument>,
     private jwtService: JwtService,
     private configService: ConfigService,
     private mailService: MailService,
@@ -42,16 +52,112 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, SALT_ROUNDS);
-    await this.userModel.create({
-      email: dto.email,
-      password: hashedPassword,
-      name: dto.name,
-      language: dto.language,
-      balance: dto.balance ?? 0,
-      currency: dto.currency,
-    });
+    const language = dto.language ?? Language.EN;
+    const code = crypto.randomInt(0, 1_000_000).toString().padStart(6, '0');
+    await this.pendingUserModel.findOneAndUpdate(
+      { email: dto.email },
+      {
+        email: dto.email,
+        password: hashedPassword,
+        name: dto.name,
+        language,
+        balance: dto.balance ?? 0,
+        currency: dto.currency,
+        code: this.hashToken(code),
+        codeExpires: new Date(Date.now() + VERIFICATION_CODE_EXPIRES_MS),
+        attempts: 0,
+        expiresAt: new Date(),
+      },
+      { upsert: true },
+    );
+    await this.mailService.sendEmailVerificationCode(
+      dto.email,
+      dto.name,
+      code,
+      language,
+    );
 
-    return { message: I18nContext.current()?.t('auth.REGISTER_SUCCESS') };
+    return {
+      message: I18nContext.current()?.t('auth.EMAIL_VERIFICATION_SENT'),
+    };
+  }
+
+  async verifyEmail(dto: VerifyEmailDto) {
+    const pending = await this.pendingUserModel
+      .findOne({ email: dto.email })
+      .select('+password +code +codeExpires +attempts');
+
+    if (!pending || !pending.codeExpires || pending.codeExpires < new Date()) {
+      throw new BadRequestException(
+        I18nContext.current()?.t('auth.INVALID_OR_EXPIRED_CODE'),
+      );
+    }
+
+    if ((pending.attempts ?? 0) >= MAX_VERIFICATION_ATTEMPTS) {
+      throw new BadRequestException(
+        I18nContext.current()?.t('auth.TOO_MANY_ATTEMPTS'),
+      );
+    }
+
+    if (this.hashToken(dto.code) !== pending.code) {
+      pending.attempts = (pending.attempts ?? 0) + 1;
+      await pending.save();
+      throw new BadRequestException(
+        I18nContext.current()?.t('auth.INVALID_CODE'),
+      );
+    }
+
+    let user: UserDocument;
+    try {
+      user = await this.userModel.create({
+        email: pending.email,
+        password: pending.password,
+        name: pending.name,
+        language: pending.language,
+        balance: pending.balance,
+        currency: pending.currency,
+      });
+    } catch (error) {
+      if ((error as { code?: number }).code === 11000) {
+        throw new ConflictException(
+          I18nContext.current()?.t('auth.EMAIL_ALREADY_REGISTERED'),
+        );
+      }
+      throw error;
+    }
+    await this.pendingUserModel.deleteOne({ _id: pending._id });
+
+    user.lastLoginAt = new Date();
+    await user.save();
+
+    const tokens = await this.issueTokens(user.id, user.email);
+    return {
+      message: I18nContext.current()?.t('auth.REGISTER_SUCCESS'),
+      data: { user, ...tokens },
+    };
+  }
+
+  async resendVerificationCode(dto: ResendVerificationDto) {
+    const pending = await this.pendingUserModel.findOne({
+      email: dto.email,
+    });
+    if (pending) {
+      const code = crypto.randomInt(0, 1_000_000).toString().padStart(6, '0');
+      pending.code = this.hashToken(code);
+      pending.codeExpires = new Date(Date.now() + VERIFICATION_CODE_EXPIRES_MS);
+      pending.attempts = 0;
+      await pending.save();
+      await this.mailService.sendEmailVerificationCode(
+        pending.email,
+        pending.name,
+        code,
+        pending.language,
+      );
+    }
+
+    return {
+      message: I18nContext.current()?.t('auth.EMAIL_VERIFICATION_SENT'),
+    };
   }
 
   async login(dto: LoginDto) {

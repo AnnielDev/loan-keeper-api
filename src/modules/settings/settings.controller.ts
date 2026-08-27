@@ -11,6 +11,7 @@ import { SettingsService } from './settings.service';
 export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
 
+  @Public()
   @Get('languages')
   getLanguages() {
     return this.settingsService.getLanguages();

@@ -6,12 +6,16 @@ import { PassportModule } from '@nestjs/passport';
 import { MailModule } from '../mail/mail.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { PendingUser, PendingUserSchema } from './schemas/pending-user.schema';
 import { User, UserSchema } from './schemas/user.schema';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: PendingUser.name, schema: PendingUserSchema },
+    ]),
     MailModule,
     PassportModule,
     JwtModule.registerAsync({

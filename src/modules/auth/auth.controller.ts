@@ -6,7 +6,9 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 import { VerifyResetCodeDto } from './dto/verify-reset-code.dto';
 
 @Controller('auth')
@@ -17,6 +19,20 @@ export class AuthController {
   @Post('signup')
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post('verify-email')
+  verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(dto);
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post('resend-verification-code')
+  resendVerificationCode(@Body() dto: ResendVerificationDto) {
+    return this.authService.resendVerificationCode(dto);
   }
 
   @Public()

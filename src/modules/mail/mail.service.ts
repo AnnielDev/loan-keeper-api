@@ -52,4 +52,29 @@ export class MailService {
 
     await this.transporter.sendMail({ from: this.from, to, subject, html });
   }
+
+  async sendEmailVerificationCode(
+    to: string,
+    name: string,
+    code: string,
+    language: string,
+  ) {
+    const t = (key: string) =>
+      I18nContext.current()?.t(`auth.${key}`, {
+        lang: language,
+        args: { name, code },
+      }) ?? key;
+
+    const subject = t('MAIL_SIGNUP_CODE_SUBJECT');
+    const html = `<p>${t('MAIL_SIGNUP_CODE_GREETING')}</p><p>${t('MAIL_SIGNUP_CODE_BODY')}</p><p style="font-size:28px;font-weight:bold;letter-spacing:6px;">${code}</p><p>${t('MAIL_SIGNUP_CODE_EXPIRY')}</p><p>${t('MAIL_SIGNUP_CODE_IGNORE')}</p>`;
+
+    if (!this.transporter) {
+      this.logger.warn(
+        `SMTP not configured — signup verification code for ${to}: ${code}`,
+      );
+      return;
+    }
+
+    await this.transporter.sendMail({ from: this.from, to, subject, html });
+  }
 }
