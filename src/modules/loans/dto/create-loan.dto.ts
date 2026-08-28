@@ -49,6 +49,12 @@ export class CreateLoanDto {
   )
   startDate!: string;
 
+  @IsDateString(
+    {},
+    { message: i18nValidationMessage('validation.IS_DATE_STRING') },
+  )
+  collectionDate!: string;
+
   @IsBoolean({ message: i18nValidationMessage('validation.IS_BOOLEAN') })
   isLegacy!: boolean;
 }

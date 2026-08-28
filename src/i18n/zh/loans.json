@@ -3,5 +3,6 @@
   "INSTALLMENT_NOT_FOUND": "未找到分期付款",
   "LOAN_CREATED": "贷款创建成功",
   "INSTALLMENT_PAID": "分期付款成功",
-  "LOAN_DELETED": "贷款删除成功"
+  "LOAN_DELETED": "贷款删除成功",
+  "COLLECTION_DATE_BEFORE_START": "收款日期不能早于开始日期"
 }

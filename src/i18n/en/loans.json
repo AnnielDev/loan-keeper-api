@@ -3,5 +3,6 @@
   "INSTALLMENT_NOT_FOUND": "Installment not found",
   "LOAN_CREATED": "Loan created successfully",
   "INSTALLMENT_PAID": "Installment paid successfully",
-  "LOAN_DELETED": "Loan deleted successfully"
+  "LOAN_DELETED": "Loan deleted successfully",
+  "COLLECTION_DATE_BEFORE_START": "Collection date cannot be earlier than the start date"
 }

@@ -3,5 +3,6 @@
   "INSTALLMENT_NOT_FOUND": "Échéance introuvable",
   "LOAN_CREATED": "Prêt créé avec succès",
   "INSTALLMENT_PAID": "Échéance payée avec succès",
-  "LOAN_DELETED": "Prêt supprimé avec succès"
+  "LOAN_DELETED": "Prêt supprimé avec succès",
+  "COLLECTION_DATE_BEFORE_START": "La date de recouvrement ne peut pas être antérieure à la date de début"
 }

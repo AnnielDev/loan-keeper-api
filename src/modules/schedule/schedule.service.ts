@@ -56,16 +56,15 @@ export class ScheduleService {
     const end = new Date(year, month, 1);
     const now = new Date();
 
-    const installmentMatch: Record<string, unknown> = {
-      dueDate: { $gte: start, $lt: end },
-    };
-    if (!includePaid) installmentMatch.paid = false;
-
+    // Filtering by dueDate range at the query level requires every stored
+    // installment to be a real BSON Date; a legacy/imported loan whose
+    // installments were written outside the Mongoose schema (e.g. a direct
+    // DB write with string dates) would silently fail that match and never
+    // come back, even though the data is fine. Fetching by user and
+    // filtering/casting dates in application code is robust to that either
+    // way, regardless of loan type or how old the due date is.
     const loans = await this.loanModel
-      .find({
-        registeredBy: userId,
-        installments: { $elemMatch: installmentMatch },
-      })
+      .find({ registeredBy: userId })
       .populate<{ customer: PopulatedCustomer | null }>(
         'customer',
         'fullName avatarUrl',
@@ -77,6 +76,7 @@ export class ScheduleService {
       for (const installment of loan.installments) {
         if (!includePaid && installment.paid) continue;
         const dueDate = new Date(installment.dueDate);
+        if (Number.isNaN(dueDate.getTime())) continue;
         if (dueDate < start || dueDate >= end) continue;
         events.push(this.toEvent(loan, installment, dueDate, now, timezone));
       }

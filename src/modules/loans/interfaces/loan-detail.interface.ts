@@ -32,6 +32,7 @@ export interface LoanDetail {
   interestType: InterestType;
   frequency: PaymentFrequency;
   startDate: Date;
+  collectionDate: Date;
   totalInterest: number;
   totalAmount: number;
   isLegacy: boolean;

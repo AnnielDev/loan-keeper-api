@@ -95,6 +95,9 @@ export class Loan {
   startDate!: Date;
 
   @Prop({ required: true })
+  collectionDate!: Date;
+
+  @Prop({ required: true })
   totalInterest!: number;
 
   @Prop({ required: true })

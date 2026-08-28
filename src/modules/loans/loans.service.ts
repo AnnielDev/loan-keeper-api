@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as crypto from 'crypto';
 import { Model, Types } from 'mongoose';
@@ -72,6 +76,7 @@ interface LeanLoanDetail {
   interestType: InterestType;
   frequency: PaymentFrequency;
   startDate: Date;
+  collectionDate: Date;
   totalInterest: number;
   totalAmount: number;
   isLegacy: boolean;
@@ -92,6 +97,12 @@ export class LoansService {
   ) {}
 
   async create(dto: CreateLoanDto, userId: string) {
+    if (new Date(dto.collectionDate) < new Date(dto.startDate)) {
+      throw new BadRequestException(
+        I18nContext.current()?.t('loans.COLLECTION_DATE_BEFORE_START'),
+      );
+    }
+
     const code = await this.generateCode(dto.type);
     const totalInterest = this.calculateTotalInterest(dto);
     const totalAmount = dto.principal + totalInterest;
@@ -106,6 +117,7 @@ export class LoansService {
       interestType: dto.interestType,
       frequency: dto.frequency,
       startDate: dto.startDate,
+      collectionDate: dto.collectionDate,
       totalInterest,
       totalAmount,
       installments,
@@ -285,6 +297,7 @@ export class LoansService {
       interestType: loan.interestType,
       frequency: loan.frequency,
       startDate: loan.startDate,
+      collectionDate: loan.collectionDate,
       totalInterest: loan.totalInterest,
       totalAmount: loan.totalAmount,
       isLegacy: loan.isLegacy,
@@ -522,7 +535,7 @@ export class LoansService {
             dto.installmentsCount,
           )
         : this.round(totalAmount / dto.installmentsCount);
-    const startDate = new Date(dto.startDate);
+    const collectionDate = new Date(dto.collectionDate);
 
     return Array.from({ length: dto.installmentsCount }, (_, index) => {
       const isLast = index === dto.installmentsCount - 1;
@@ -531,7 +544,7 @@ export class LoansService {
         : baseAmount;
 
       return {
-        dueDate: this.addPeriods(startDate, dto.frequency, index + 1),
+        dueDate: this.addPeriods(collectionDate, dto.frequency, index + 1),
         amount,
         paid: false,
       };

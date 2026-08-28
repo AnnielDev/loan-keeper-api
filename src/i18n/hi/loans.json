@@ -3,5 +3,6 @@
   "INSTALLMENT_NOT_FOUND": "किस्त नहीं मिली",
   "LOAN_CREATED": "ऋण सफलतापूर्वक बनाया गया",
   "INSTALLMENT_PAID": "किस्त का भुगतान सफलतापूर्वक किया गया",
-  "LOAN_DELETED": "ऋण सफलतापूर्वक हटाया गया"
+  "LOAN_DELETED": "ऋण सफलतापूर्वक हटाया गया",
+  "COLLECTION_DATE_BEFORE_START": "वसूली तिथि प्रारंभ तिथि से पहले नहीं हो सकती"
 }
