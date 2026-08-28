@@ -544,7 +544,7 @@ export class LoansService {
         : baseAmount;
 
       return {
-        dueDate: this.addPeriods(collectionDate, dto.frequency, index + 1),
+        dueDate: this.addPeriods(collectionDate, dto.frequency, index),
         amount,
         paid: false,
       };
