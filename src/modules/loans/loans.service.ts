@@ -499,8 +499,15 @@ export class LoansService {
     };
   }
 
+  private monthsPerFrequency(frequency: PaymentFrequency): number {
+    if (frequency === PaymentFrequency.EVERY_2_MONTHS) return 2;
+    if (frequency === PaymentFrequency.EVERY_3_MONTHS) return 3;
+    return 1;
+  }
+
   private calculateTotalInterest(dto: CreateLoanDto): number {
-    const rate = dto.interestRate / 100;
+    const rate =
+      (dto.interestRate / 100) * this.monthsPerFrequency(dto.frequency);
 
     if (dto.interestType === InterestType.COMPOUND) {
       const installment = this.calculateCompoundInstallment(
@@ -526,7 +533,8 @@ export class LoansService {
   }
 
   private buildInstallments(dto: CreateLoanDto, totalAmount: number) {
-    const rate = dto.interestRate / 100;
+    const rate =
+      (dto.interestRate / 100) * this.monthsPerFrequency(dto.frequency);
     const baseAmount =
       dto.interestType === InterestType.COMPOUND
         ? this.calculateCompoundInstallment(
@@ -557,13 +565,7 @@ export class LoansService {
     periods: number,
   ): Date {
     const date = new Date(startDate);
-    if (frequency === PaymentFrequency.EVERY_2_MONTHS) {
-      date.setMonth(date.getMonth() + periods * 2);
-    } else if (frequency === PaymentFrequency.EVERY_3_MONTHS) {
-      date.setMonth(date.getMonth() + periods * 3);
-    } else {
-      date.setMonth(date.getMonth() + periods);
-    }
+    date.setMonth(date.getMonth() + periods * this.monthsPerFrequency(frequency));
     return date;
   }
 
