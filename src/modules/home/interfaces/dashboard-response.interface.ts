@@ -2,7 +2,8 @@ export type DueStatus = 'upcoming' | 'today' | 'overdue';
 
 export interface MonthlyIncomePoint {
   month: string;
-  amount: number;
+  collected: number;
+  loaned: number;
 }
 
 export interface UpcomingDueDate {

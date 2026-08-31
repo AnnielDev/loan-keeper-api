@@ -25,6 +25,7 @@ interface PopulatedCustomer {
 interface LeanLoan {
   _id: Types.ObjectId;
   principal: number;
+  startDate: Date;
   createdAt: Date;
   isLegacy: boolean;
   installments: Installment[];
@@ -61,7 +62,8 @@ export class HomeService {
     let pendingToday = 0;
     let activeCount = 0;
     let overdueCount = 0;
-    const monthlyIncomeTotals = new Map<string, number>();
+    const monthlyCollectedTotals = new Map<string, number>();
+    const monthlyLoanedTotals = new Map<string, number>();
     const upcomingDueDates: UpcomingDueDate[] = [];
 
     for (const loan of loans) {
@@ -74,15 +76,7 @@ export class HomeService {
 
       for (const installment of loan.installments) {
         if (installment.paid) {
-          const paidAmount = installment.paidAmount ?? installment.amount;
-          totalCollected += paidAmount;
-          if (installment.paidAt) {
-            const key = this.monthKey(new Date(installment.paidAt));
-            monthlyIncomeTotals.set(
-              key,
-              (monthlyIncomeTotals.get(key) ?? 0) + paidAmount,
-            );
-          }
+          totalCollected += installment.paidAmount ?? installment.amount;
           continue;
         }
 
@@ -118,9 +112,31 @@ export class HomeService {
 
     upcomingDueDates.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
 
+    // Migrated (isLegacy) loans are excluded from every other metric above,
+    // but the monthly chart still reflects their collected and loaned
+    // amounts — so this totals pass runs over all loans, legacy included.
+    for (const loan of loans) {
+      const loanedKey = this.monthKey(new Date(loan.startDate));
+      monthlyLoanedTotals.set(
+        loanedKey,
+        (monthlyLoanedTotals.get(loanedKey) ?? 0) + loan.principal,
+      );
+
+      for (const installment of loan.installments) {
+        if (!installment.paid || !installment.paidAt) continue;
+        const paidAmount = installment.paidAmount ?? installment.amount;
+        const key = this.monthKey(new Date(installment.paidAt));
+        monthlyCollectedTotals.set(
+          key,
+          (monthlyCollectedTotals.get(key) ?? 0) + paidAmount,
+        );
+      }
+    }
+
     const monthlyIncome = this.buildLastMonths(now).map(({ key, label }) => ({
       month: label,
-      amount: monthlyIncomeTotals.get(key) ?? 0,
+      collected: monthlyCollectedTotals.get(key) ?? 0,
+      loaned: monthlyLoanedTotals.get(key) ?? 0,
     }));
 
     const growthPercentage = await this.getLoanedGrowthPercentage(now, userId);
