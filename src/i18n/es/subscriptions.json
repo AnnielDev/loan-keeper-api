@@ -1,0 +1,6 @@
+{
+  "USER_NOT_FOUND": "Usuario no encontrado",
+  "PURCHASE_NOT_ACTIVE": "Esta compra no corresponde a una suscripción activa",
+  "PURCHASE_VERIFIED": "Suscripción activada correctamente",
+  "SUBSCRIPTION_REQUIRED": "Tu prueba gratuita terminó. Suscríbete para seguir usando la app."
+}

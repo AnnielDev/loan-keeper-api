@@ -1,0 +1,6 @@
+{
+  "USER_NOT_FOUND": "User not found",
+  "PURCHASE_NOT_ACTIVE": "This purchase is not an active subscription",
+  "PURCHASE_VERIFIED": "Subscription activated successfully",
+  "SUBSCRIPTION_REQUIRED": "Your free trial has ended. Subscribe to keep using the app."
+}

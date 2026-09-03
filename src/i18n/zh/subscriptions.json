@@ -1,0 +1,6 @@
+{
+  "USER_NOT_FOUND": "未找到用户",
+  "PURCHASE_NOT_ACTIVE": "此购买不是有效的订阅",
+  "PURCHASE_VERIFIED": "订阅已成功激活",
+  "SUBSCRIPTION_REQUIRED": "您的免费试用已结束。请订阅以继续使用该应用。"
+}

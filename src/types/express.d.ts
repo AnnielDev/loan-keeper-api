@@ -1,4 +1,7 @@
-import { Language } from '../modules/auth/schemas/user.schema';
+import {
+  Language,
+  SubscriptionStatus,
+} from '../modules/auth/schemas/user.schema';
 
 declare global {
   namespace Express {
@@ -6,6 +9,12 @@ declare global {
       userId: string;
       email: string;
       language: Language;
+      timezone?: string;
+      currency?: string;
+      balance?: number;
+      subscriptionStatus: SubscriptionStatus;
+      trialEndsAt: Date;
+      subscriptionExpiresAt?: Date;
     }
   }
 }

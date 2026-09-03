@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Public } from '../auth/decorators/public.decorator';
+import { SkipSubscriptionCheck } from '../auth/decorators/skip-subscription-check.decorator';
 import { UpdateCurrencyDto } from './dto/update-currency.dto';
 import { UpdateLanguageDto } from './dto/update-language.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
@@ -8,6 +9,7 @@ import { UpdateNameDto } from './dto/update-name.dto';
 import { SettingsService } from './settings.service';
 
 @Controller('settings')
+@SkipSubscriptionCheck()
 export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
 

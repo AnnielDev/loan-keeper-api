@@ -11,6 +11,13 @@ export enum Language {
   FR = 'fr',
 }
 
+export enum SubscriptionStatus {
+  TRIALING = 'trialing',
+  ACTIVE = 'active',
+  EXPIRED = 'expired',
+  CANCELED = 'canceled',
+}
+
 export enum Currency {
   USD = 'USD',
   EUR = 'EUR',
@@ -41,6 +48,8 @@ export enum Currency {
       delete ret.passwordResetExpires;
       delete ret.passwordResetAttempts;
       delete ret.passwordResetVerified;
+      delete ret.googleId;
+      delete ret.subscriptionPurchaseToken;
       return ret;
     },
   },
@@ -49,8 +58,9 @@ export class User {
   @Prop({ required: true, unique: true, lowercase: true, trim: true })
   email!: string;
 
-  @Prop({ required: true, select: false })
-  password!: string;
+  // Optional: a user who signed up via Google Sign-In has no password.
+  @Prop({ select: false })
+  password?: string;
 
   @Prop({ required: true, trim: true })
   name!: string;
@@ -96,6 +106,34 @@ export class User {
 
   @Prop()
   lastLoginAt?: Date;
+
+  // sub claim of the Google ID token, set when the account is linked to
+  // (or created via) Google Sign-In.
+  @Prop({ select: false })
+  googleId?: string;
+
+  @Prop({
+    type: String,
+    enum: SubscriptionStatus,
+    default: SubscriptionStatus.TRIALING,
+  })
+  subscriptionStatus!: SubscriptionStatus;
+
+  // Set once, at account creation (email verification or Google sign-up):
+  // start of the 15-day free trial.
+  @Prop({ required: true })
+  trialEndsAt!: Date;
+
+  // Set/refreshed from the Google Play purchase once subscriptionStatus is
+  // 'active'.
+  @Prop()
+  subscriptionExpiresAt?: Date;
+
+  @Prop()
+  subscriptionProductId?: string;
+
+  @Prop({ select: false })
+  subscriptionPurchaseToken?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

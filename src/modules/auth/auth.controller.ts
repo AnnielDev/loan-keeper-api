@@ -2,7 +2,9 @@ import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { Public } from './decorators/public.decorator';
+import { SkipSubscriptionCheck } from './decorators/skip-subscription-check.decorator';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { GoogleSignInDto } from './dto/google-signin.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -12,6 +14,7 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import { VerifyResetCodeDto } from './dto/verify-reset-code.dto';
 
 @Controller('auth')
+@SkipSubscriptionCheck()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -40,6 +43,13 @@ export class AuthController {
   @Post('signin')
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post('google')
+  signInWithGoogle(@Body() dto: GoogleSignInDto) {
+    return this.authService.signInWithGoogle(dto);
   }
 
   @Public()

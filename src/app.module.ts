@@ -1,16 +1,19 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { ScheduleModule as NestScheduleModule } from '@nestjs/schedule';
 import * as path from 'path';
 import { AcceptLanguageResolver, I18nModule } from 'nestjs-i18n';
 import { AppController } from './app.controller';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { SubscriptionGuard } from './modules/auth/guards/subscription.guard';
 import { CustomersModule } from './modules/customers/customers.module';
 import { HomeModule } from './modules/home/home.module';
 import { LoansModule } from './modules/loans/loans.module';
 import { ScheduleModule } from './modules/schedule/schedule.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UsersModule } from './modules/users/users.module';
 import { envValidationSchema } from './utils/config/env.validation';
@@ -37,6 +40,7 @@ import { UserLanguageResolver } from './i18n/resolvers/user-language.resolver';
       disableMiddleware: true,
       resolvers: [UserLanguageResolver, AcceptLanguageResolver],
     }),
+    NestScheduleModule.forRoot(),
     DatabaseModule,
     AuthModule,
     LoansModule,
@@ -46,12 +50,17 @@ import { UserLanguageResolver } from './i18n/resolvers/user-language.resolver';
     HomeModule,
     UploadsModule,
     UsersModule,
+    SubscriptionsModule,
   ],
   controllers: [AppController],
   providers: [
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: SubscriptionGuard,
     },
   ],
 })
