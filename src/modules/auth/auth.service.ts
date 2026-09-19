@@ -9,12 +9,10 @@ import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
-import { OAuth2Client, TokenPayload } from 'google-auth-library';
 import { Model } from 'mongoose';
 import { I18nContext } from 'nestjs-i18n';
 import { MailService } from '../mail/mail.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { GoogleSignInDto } from './dto/google-signin.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -37,8 +35,6 @@ const TRIAL_DURATION_MS = 15 * 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class AuthService {
-  private readonly googleOAuthClient: OAuth2Client;
-
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(PendingUser.name)
@@ -46,11 +42,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private mailService: MailService,
-  ) {
-    this.googleOAuthClient = new OAuth2Client(
-      this.configService.get<string>('GOOGLE_SIGNIN_CLIENT_ID'),
-    );
-  }
+  ) {}
 
   async register(dto: RegisterDto) {
     const existing = await this.userModel.findOne({ email: dto.email });
@@ -186,52 +178,6 @@ export class AuthService {
       throw new UnauthorizedException(
         I18nContext.current()?.t('auth.INVALID_CREDENTIALS'),
       );
-    }
-
-    user.lastLoginAt = new Date();
-    await user.save();
-
-    const tokens = await this.issueTokens(user.id, user.email);
-    return {
-      message: I18nContext.current()?.t('auth.LOGIN_SUCCESS'),
-      data: { user, ...tokens },
-    };
-  }
-
-  async signInWithGoogle(dto: GoogleSignInDto) {
-    let payload: TokenPayload | undefined;
-    try {
-      const ticket = await this.googleOAuthClient.verifyIdToken({
-        idToken: dto.idToken,
-        audience: this.configService.get<string>('GOOGLE_SIGNIN_CLIENT_ID'),
-      });
-      payload = ticket.getPayload();
-    } catch {
-      throw new UnauthorizedException(
-        I18nContext.current()?.t('auth.INVALID_GOOGLE_TOKEN'),
-      );
-    }
-
-    if (!payload?.sub || !payload.email) {
-      throw new UnauthorizedException(
-        I18nContext.current()?.t('auth.INVALID_GOOGLE_TOKEN'),
-      );
-    }
-
-    let user = await this.userModel
-      .findOne({ $or: [{ googleId: payload.sub }, { email: payload.email }] })
-      .select('+googleId');
-
-    if (!user) {
-      user = await this.userModel.create({
-        email: payload.email,
-        name: payload.name ?? payload.email,
-        googleId: payload.sub,
-        trialEndsAt: new Date(Date.now() + TRIAL_DURATION_MS),
-      });
-    } else if (!user.googleId) {
-      user.googleId = payload.sub;
-      await user.save();
     }
 
     user.lastLoginAt = new Date();

@@ -22,6 +22,5 @@ export const envValidationSchema = Joi.object({
   GOOGLE_PLAY_PACKAGE_NAME: Joi.string().allow('').optional(),
   GOOGLE_SERVICE_ACCOUNT_EMAIL: Joi.string().allow('').optional(),
   GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: Joi.string().allow('').optional(),
-  GOOGLE_SIGNIN_CLIENT_ID: Joi.string().allow('').optional(),
   SUBSCRIPTION_PRODUCT_ID: Joi.string().allow('').optional(),
 });
